@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/xiahongze/pricetracker/gutils"
 	"github.com/xiahongze/pricetracker/types"
 )
 
@@ -31,7 +32,7 @@ func read(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
 	defer cancel()
 	entity := &types.Entity{}
-	err := dsClient.Get(ctx, req.Key, entity)
+	err := gutils.DsClient.Get(ctx, req.Key, entity)
 	if err != nil {
 		writeReadResponse(w, http.StatusNotFound, false, err.Error(), nil)
 		return

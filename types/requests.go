@@ -53,10 +53,10 @@ func (r *CreateRequest) Validate() (string, bool) {
 
 func (o *Options) setDefault() {
 	if o.CheckFreq == 0 {
-		o.CheckFreq = 3600
+		o.CheckFreq = 60 * 24
 	}
 	if o.MaxRecords == 0 {
-		o.MaxRecords = 360
+		o.MaxRecords = 365
 	}
 	if o.AlertType == "" && o.Threshold == 0 {
 		o.AlertType = "onChange"

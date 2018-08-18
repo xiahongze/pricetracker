@@ -1,4 +1,4 @@
-package handlers
+package gutils
 
 import (
 	"context"
@@ -14,7 +14,8 @@ var ProjectName = "project-order-management"
 // EntityType is the EntityType in your datastore
 var EntityType = "price-tracks"
 
-var dsClient *datastore.Client
+// DsClient is the global datastore client
+var DsClient *datastore.Client
 
 func init() {
 	if v, ok := os.LookupEnv("PROJECT_NAME"); ok {
@@ -25,8 +26,8 @@ func init() {
 	}
 	ctx := context.Background()
 	var err error
-	dsClient, err = datastore.NewClient(ctx, ProjectName)
+	DsClient, err = datastore.NewClient(ctx, ProjectName)
 	if err != nil {
-		log.Fatal("failed to new a dsClient", err)
+		log.Fatal("failed to new a DsClient", err)
 	}
 }

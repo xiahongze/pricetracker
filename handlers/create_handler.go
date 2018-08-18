@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/xiahongze/pricetracker/gutils"
 	"github.com/xiahongze/pricetracker/trackers"
 	"github.com/xiahongze/pricetracker/types"
 	"github.com/xiahongze/pricetracker/types/utils"
@@ -49,7 +50,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 	entity := utils.ConvReq2Ent(req)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
 	defer cancel()
-	err := entity.Save(ctx, EntityType, dsClient)
+	err := entity.Save(ctx, gutils.EntityType, gutils.DsClient)
 
 	if err != nil {
 		writeCreateResponse(w, err.Error(), http.StatusInternalServerError, false, nil)
