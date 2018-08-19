@@ -9,7 +9,7 @@ import (
 // Validator verifies common request errors
 func Validator(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Hit " + r.URL.RequestURI())
+		log.Println("Hit " + r.URL.RequestURI() + " from " + r.RemoteAddr)
 		if ctype := r.Header.Get("content-type"); strings.ToLower(ctype) != "application/json" {
 			http.Error(w, "only accept content-type: application/json", http.StatusBadRequest)
 			return

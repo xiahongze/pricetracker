@@ -17,10 +17,17 @@ func init() {
 }
 
 // Run serves the PriceTracker service
-func Run() {
+func Run() *http.Server {
 	log.Println("Welcome to PriceTracker, the server that would save you money!")
+	srv := &http.Server{Addr: ":" + port}
 	http.Handle("/create", handlers.Validator(handlers.CreateHandler))
 	http.Handle("/read", handlers.Validator(handlers.ReadHandler))
-	log.Printf("Listening at http://localhost:%s\n", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	go func() {
+		log.Printf("Listening at http://localhost:%s\n", port)
+		if err := srv.ListenAndServe(); err != nil {
+			// cannot panic, because this probably is an intentional close
+			log.Printf("ListenAndServe error: %s", err)
+		}
+	}()
+	return srv
 }

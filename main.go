@@ -1,38 +1,24 @@
 package main
 
 import (
-	_ "context"
-	_ "log"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
-	_ "cloud.google.com/go/datastore"
 	"github.com/xiahongze/pricetracker/server"
-	_ "github.com/xiahongze/pricetracker/types"
 )
 
 func main() {
-	server.Run()
-	// entity := types.Enity{}
+	srv := server.Run()
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
-	// ctx := context.Background()
-	// var (
-	// 	alertType = "change"
-	// 	email     = "x@x.com"
-	// )
-	// entity := types.Entity{
-	// 	AlertType: &alertType,
-	// 	Email:     &email,
-	// }
-
-	// dsClient, err := datastore.NewClient(ctx, "project-order-management")
-	// if err != nil {
-	// 	// Handle error.
-	// 	log.Fatal("failed to new a dsClient")
-	// }
-	// entity.Save(ctx, "price-tracks", *dsClient)
-
-	// t := test{Str: "", Number: 1, B: true}
-	// b, e := json.Marshal(t)
-	// if e == nil {
-	// 	fmt.Printf("%s\n", b)
-	// }
+	// listen to os signals
+	<-c
+	log.Println("Shutting down server")
+	if err := srv.Shutdown(nil); err != nil {
+		log.Fatalln("Error shutting down server", err)
+	}
+	log.Println("Done")
 }
