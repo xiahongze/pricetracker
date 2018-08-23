@@ -2,16 +2,17 @@ package gutils
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"cloud.google.com/go/datastore"
-	"github.com/xiahongze/pricetracker/types"
+	"github.com/xiahongze/pricetracker/models"
 	"google.golang.org/api/iterator"
 )
 
 // FetchData fetches n records from datastore that needs to be checked
-func FetchData(n int) []types.Entity {
-	entities := make([]types.Entity, n, n)
+func FetchData(n int) []models.Entity {
+	entities := make([]models.Entity, n, n)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
 	defer cancel()
@@ -27,6 +28,7 @@ func FetchData(n int) []types.Entity {
 		}
 		if err != nil {
 			// Handle error.
+			log.Println("FetchData Error:", err)
 		}
 		i++
 	}

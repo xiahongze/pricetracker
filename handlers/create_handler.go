@@ -9,13 +9,12 @@ import (
 
 	"cloud.google.com/go/datastore"
 	"github.com/xiahongze/pricetracker/gutils"
+	"github.com/xiahongze/pricetracker/models"
 	"github.com/xiahongze/pricetracker/trackers"
-	"github.com/xiahongze/pricetracker/types"
-	"github.com/xiahongze/pricetracker/types/utils"
 )
 
 func writeCreateResponse(w http.ResponseWriter, msg string, status int, OK bool, Key *datastore.Key) {
-	resp := types.CreateResponse{OK: OK, Message: msg, Key: Key}
+	resp := models.CreateResponse{OK: OK, Message: msg, Key: Key}
 	b, _ := json.Marshal(resp)
 	w.WriteHeader(status)
 	w.Write(b)
@@ -25,12 +24,12 @@ func create(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	body, _ := ioutil.ReadAll(r.Body)
-	req := types.CreateRequest{}
+	req := models.CreateRequest{}
 	json.Unmarshal(body, &req)
 	if content, ok := req.Validate(); !ok {
-		resp := types.CreateResponse{OK: false, Message: content}
+		resp := models.CreateResponse{OK: false, Message: content}
 		b, _ := json.Marshal(resp)
-		http.Error(w, string(b), http.StatusBadRequest)
+		writeCreateResponse(w, string(b), http.StatusBadRequest, false, nil)
 		return
 	}
 
@@ -47,7 +46,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add datastore handlers
-	entity := utils.ConvReq2Ent(req)
+	entity := gutils.ConvReq2Ent(req)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
 	defer cancel()
 	err := entity.Save(ctx, gutils.EntityType, gutils.DsClient)
