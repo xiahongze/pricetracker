@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	auth     smtp.Auth
-	from     string
+	auth smtp.Auth
+	from string
+	// Identity is the name of the sender
 	Identity = "PRICE-TRACKER"
 	username string
 	password string
@@ -59,10 +60,10 @@ func init() {
 }
 
 // Send sends an email to destination
-func Send(body string, subject string, destEmail string) {
-	err := smtp.SendMail(host+":"+smtpPort, auth, from, []string{destEmail}, []byte(body))
+func Send(body string, subject string, destEmail string) (err error) {
+	err = smtp.SendMail(host+":"+smtpPort, auth, from, []string{destEmail}, []byte(body))
 	if err != nil {
 		log.Printf("ERROR: SMTP error %s\n", err)
-		return
 	}
+	return
 }

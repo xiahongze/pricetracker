@@ -30,7 +30,14 @@ func init() {
 }
 
 func composeEmail(ent models.Entity) string {
-	return fmt.Sprintf("Link to the website: %s\n", ent.URL)
+	key, err := ent.K.MarshalJSON()
+	if err != nil {
+		key = []byte("unrecognizable key")
+	}
+	return fmt.Sprintf(`Link to the website: %s
+Name: %s
+XPATH: %s
+Key: %s`, ent.URL, ent.Name, ent.XPATH, key)
 }
 
 // Refresh refreshes prices from datastore
