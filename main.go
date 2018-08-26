@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"os"
 	"os/signal"
@@ -19,18 +18,23 @@ func main() {
 
 	// scheduling tasks
 	schd := gutils.Schedule(func() {
-		log.Println("Running on schedule")
-		log.Println(gutils.FetchData(10))
-	}, time.Second*10)
+		defer func() {
+			if r := recover(); r != nil {
+				log.Println("INFO: Main: Recovered in Schedule: ", r)
+			}
+		}()
+		log.Println("INFO: Main: Running on schedule")
+		gutils.Refresh()
+	}, gutils.SchdFreq)
 
 	// listen to os signals
 	<-c
-	log.Println("Shutting down server")
+	log.Println("INFO: Main: Shutting down server")
 	if err := srv.Shutdown(nil); err != nil {
-		log.Fatalln("Error shutting down server", err)
+		log.Fatalln("ERROR: Main: Error shutting down server", err)
 	}
 	schd <- true
-	log.Println("Stopped scheduled tasks")
-	log.Println("Done")
+	log.Println("INFO: Main: Stopped scheduled tasks")
+	log.Println("INFO: Main: Done")
 
 }

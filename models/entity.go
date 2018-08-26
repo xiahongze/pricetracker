@@ -31,12 +31,11 @@ type (
 // Save saves the entry in the datastore
 func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *datastore.Client) (err error) {
 	defer func() {
-		b := []byte("entity not marshaled")
-		b, _ = json.Marshal(entity)
+		k, _ := json.Marshal(entity.K)
 		if err != nil {
-			log.Printf("Save error (%+v) for entity %s\n", err, b)
+			log.Printf("ERROR: Entity: failed to save entity with %s\n", err)
 		} else {
-			log.Printf("Saved entity %s\n", b)
+			log.Printf("INFO: Entity: saved K=%s\n", k)
 		}
 	}()
 
