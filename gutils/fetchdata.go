@@ -14,7 +14,7 @@ import (
 func FetchData(n int) []models.Entity {
 	entities := make([]models.Entity, n, n)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 	defer cancel()
 
 	q := datastore.NewQuery(EntityType).Filter("NextCheck <", time.Now()).Limit(n)

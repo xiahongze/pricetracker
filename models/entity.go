@@ -22,6 +22,7 @@ type (
 		Options   Options        `json:",omitempty" datastore:",noindex"`
 		URL       string         `json:",omitempty" datastore:",noindex"`
 		XPATH     string         `json:",omitempty" datastore:",noindex"`
+		Name      string         `json:",omitempty"`
 		NextCheck time.Time      `json:",omitempty"`
 		History   []DataPoint    `json:",omitempty" datastore:",noindex"`
 	}

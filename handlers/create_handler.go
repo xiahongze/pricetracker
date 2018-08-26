@@ -47,7 +47,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 
 	// add datastore handlers
 	entity := gutils.ConvReq2Ent(req)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(gutils.CancelWaitTime))
 	defer cancel()
 	err := entity.Save(ctx, gutils.EntityType, gutils.DsClient)
 

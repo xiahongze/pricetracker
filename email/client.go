@@ -9,7 +9,7 @@ import (
 var (
 	auth     smtp.Auth
 	from     string
-	identity = "PRICE-TRACKER"
+	Identity = "PRICE-TRACKER"
 	username string
 	password string
 	host     string
@@ -19,7 +19,7 @@ var (
 func init() {
 	v, ok := os.LookupEnv("EMAIL_IDENTITY")
 	if ok {
-		identity = v
+		Identity = v
 	}
 
 	v, ok = os.LookupEnv("EMAIL_USERNAME")
@@ -51,7 +51,7 @@ func init() {
 	}
 
 	auth = smtp.PlainAuth(
-		identity,
+		Identity,
 		username,
 		password,
 		host,

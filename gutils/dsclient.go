@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"time"
 
 	"cloud.google.com/go/datastore"
 )
@@ -16,6 +17,9 @@ var EntityType = "price-tracks"
 
 // DsClient is the global datastore client
 var DsClient *datastore.Client
+
+// CancelWaitTime is the default GCP wait time for an operation
+var CancelWaitTime = time.Second * 30
 
 func init() {
 	if v, ok := os.LookupEnv("PROJECT_NAME"); ok {

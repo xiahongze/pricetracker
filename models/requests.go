@@ -17,6 +17,7 @@ type (
 	CreateRequest struct {
 		URL           string   `json:"url"`
 		XPATH         string   `json:"xpath"`
+		Name          string   `json:"name"`
 		ExpectedPrice string   `json:"expectedPrice"`
 		Options       *Options `json:"options"`
 	}
@@ -40,6 +41,9 @@ func (r *CreateRequest) Validate() (string, bool) {
 	}
 	if r.XPATH == "" {
 		return "xpath is not set", false
+	}
+	if r.Name == "" {
+		return "name is not set", false
 	}
 	if r.ExpectedPrice == "" {
 		return "expectedPrice is not set", false
