@@ -28,7 +28,7 @@ func FetchData(n int) []models.Entity {
 		}
 		if err != nil {
 			// Handle error.
-			log.Println("ERROR: FetchData:", err)
+			log.Println("ERROR:", err)
 		}
 		i++
 	}

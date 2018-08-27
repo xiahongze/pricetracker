@@ -18,6 +18,7 @@ var (
 )
 
 func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	v, ok := os.LookupEnv("EMAIL_IDENTITY")
 	if ok {
 		Identity = v

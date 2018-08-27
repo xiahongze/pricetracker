@@ -22,7 +22,7 @@ func init() {
 	if v, ok := os.LookupEnv("FETCH_LIMIT"); ok {
 		tmpI, err := strconv.Atoi(v)
 		if err != nil {
-			log.Fatalln("ERROR: FETCH_LIMIT: ", err)
+			log.Fatalln("ERROR: ", err)
 		}
 		fetchLimit = tmpI
 	}
@@ -43,19 +43,19 @@ Key: %s`, ent.URL, ent.Name, ent.XPATH, key)
 func Refresh() {
 	entities := FetchData(fetchLimit)
 	if l := len(entities); l > 0 {
-		log.Println("INFO: Refresh: have fetched", l, "entities")
+		log.Println("INFO: have fetched", l, "entities")
 		for _, ent := range entities {
 			if content, ok := trackers.SimpleTracker(&ent.URL, &ent.XPATH); ok {
 				if ent.History != nil {
 					last := ent.History[len(ent.History)-1]
 					lastP, err := strconv.ParseFloat(priceRegex.FindString(last.Price), 32)
 					if err != nil {
-						log.Println("ERROR: Refresh: failed to convert price", err, "last price:", last.Price)
+						log.Println("ERROR: failed to convert price", err, "last price:", last.Price)
 						return
 					}
 					thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)
 					if err != nil {
-						log.Println("ERROR: Refresh: failed to convert price", err, "this price:", content)
+						log.Println("ERROR: failed to convert price", err, "this price:", content)
 						return
 					}
 					if ent.Options.AlertType == "onChange" && math.Abs(lastP-thisP) > 1e-3 {
@@ -73,20 +73,20 @@ func Refresh() {
 						ent.History = ent.History[:ent.Options.MaxRecords]
 					}
 				} else {
-					log.Println("WARN: Refresh: zero price history.", ent)
+					log.Println("WARN: zero price history.", ent)
 					ent.History = []models.DataPoint{models.DataPoint{Price: content, Timestamp: time.Now()}}
 				}
 
 				ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 				defer cancel()
 				if err := ent.Save(ctx, EntityType, DsClient); err != nil {
-					log.Println("ERROR: Refresh: failed to save entity:", err, ". Entity: ", ent)
+					log.Println("ERROR: failed to save entity:", err, ". Entity: ", ent)
 				}
 			} else {
-				log.Println("ERROR: Refresh: failed to fetch price.", content)
+				log.Println("ERROR: failed to fetch price.", content)
 			}
 		}
 	} else {
-		log.Println("INFO: Refresh: No updates")
+		log.Println("INFO: No updates")
 	}
 }

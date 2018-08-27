@@ -15,7 +15,7 @@ func init() {
 		if vi, err := strconv.Atoi(v); err == nil {
 			SchdFreq = time.Minute * time.Duration(vi)
 		} else {
-			log.Println("WARN: GUTILS: SCHEDULE_FREQ is not int but ", v)
+			log.Println("WARN: SCHEDULE_FREQ is not int but ", v)
 		}
 	}
 }

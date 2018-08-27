@@ -33,9 +33,9 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 	defer func() {
 		k, _ := json.Marshal(entity.K)
 		if err != nil {
-			log.Printf("ERROR: Entity: failed to save entity with %s\n", err)
+			log.Printf("ERROR: failed to save entity with %s\n", err)
 		} else {
-			log.Printf("INFO: Entity: saved K=%s\n", k)
+			log.Printf("INFO: saved K=%s\n", k)
 		}
 	}()
 

@@ -11,6 +11,10 @@ import (
 	"github.com/xiahongze/pricetracker/server"
 )
 
+func init() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
 func main() {
 	srv := server.Run()
 	c := make(chan os.Signal, 1)

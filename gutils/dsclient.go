@@ -32,6 +32,6 @@ func init() {
 	var err error
 	DsClient, err = datastore.NewClient(ctx, ProjectName)
 	if err != nil {
-		log.Fatal("ERROR: GUTILS: failed to new a DsClient", err)
+		log.Fatal("ERROR: failed to new a DsClient", err)
 	}
 }
