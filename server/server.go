@@ -1,10 +1,10 @@
 package server
 
 import (
-	"log"
-	"net/http"
 	"os"
 
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/xiahongze/pricetracker/handlers"
 )
 
@@ -16,18 +16,18 @@ func init() {
 	}
 }
 
-// Run serves the PriceTracker service
-func Run() *http.Server {
-	log.Println("INFO: Welcome to PriceTracker, the server that would save you money!")
-	srv := &http.Server{Addr: ":" + port}
-	http.Handle("/create", handlers.Validator(handlers.CreateHandler))
-	http.Handle("/read", handlers.Validator(handlers.ReadHandler))
-	go func() {
-		log.Printf("INFO: Listening at http://localhost:%s\n", port)
-		if err := srv.ListenAndServe(); err != nil {
-			// cannot panic, because this probably is an intentional close
-			log.Printf("ERROR: ListenAndServe error: %s", err)
-		}
-	}()
-	return srv
+// Build returns a new echo server instance
+func Build() *echo.Echo {
+	e := echo.New()
+	// Middleware
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "${time_rfc3339} echo: ${method} ${uri} ${status} from ${remote_ip} latency=${latency_human} error=${error}\n",
+	}))
+	e.Use(middleware.Recover())
+
+	// Routes
+	e.POST("/create", handlers.CreateHandler)
+	e.POST("/read", handlers.ReadHandler)
+
+	return e
 }

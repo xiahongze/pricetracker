@@ -7,7 +7,7 @@ import (
 )
 
 // ConvReq2Ent converts CreateRequest to Entity in datastore
-func ConvReq2Ent(req models.CreateRequest) models.Entity {
+func ConvReq2Ent(req *models.CreateRequest) models.Entity {
 	return models.Entity{
 		Options:   *req.Options,
 		URL:       req.URL,
