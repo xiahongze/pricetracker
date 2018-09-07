@@ -8,11 +8,12 @@ import (
 	"github.com/xiahongze/pricetracker/handlers"
 )
 
-var port = "8080"
+// Port is where the server serves
+var Port = "8080"
 
 func init() {
 	if val, ok := os.LookupEnv("PORT"); ok {
-		port = val
+		Port = val
 	}
 }
 
@@ -21,7 +22,7 @@ func Build() *echo.Echo {
 	e := echo.New()
 	// Middleware
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "${time_rfc3339} echo: ${method} ${uri} ${status} from ${remote_ip} latency=${latency_human} error=${error}\n",
+		Format: "${time_rfc3339} [echo] ${short_file}:${line}: ${method} ${uri} ${status} from ${remote_ip} latency=${latency_human} error=(${error})\n",
 	}))
 	e.Use(middleware.Recover())
 
