@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo"
 	"github.com/xiahongze/pricetracker/gutils"
@@ -12,8 +11,8 @@ import (
 	"github.com/xiahongze/pricetracker/trackers"
 )
 
-// CreateHandler handles create request
-func CreateHandler(c echo.Context) error {
+// Create handles create request
+func Create(c echo.Context) error {
 	req := &models.CreateRequest{}
 	if err := c.Bind(req); err != nil {
 		return err
@@ -30,11 +29,9 @@ func CreateHandler(c echo.Context) error {
 
 	// add datastore handlers
 	entity := gutils.ConvReq2Ent(req)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(gutils.CancelWaitTime))
+	ctx, cancel := context.WithTimeout(context.Background(), gutils.CancelWaitTime)
 	defer cancel()
-	err := entity.Save(ctx, gutils.EntityType, gutils.DsClient)
-
-	if err != nil {
+	if err := entity.Save(ctx, gutils.EntityType, gutils.DsClient); err != nil {
 		return err
 	}
 

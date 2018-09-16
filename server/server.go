@@ -27,8 +27,10 @@ func Build() *echo.Echo {
 	e.Use(middleware.Recover())
 
 	// Routes
-	e.POST("/create", handlers.CreateHandler)
-	e.POST("/read", handlers.ReadHandler)
+	e.POST("/create", handlers.Create)
+	e.POST("/read", handlers.Read)
+	e.POST("/update", handlers.Update)
+	e.POST("/delete", handlers.Delete)
 
 	return e
 }
