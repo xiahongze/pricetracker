@@ -11,6 +11,7 @@ func ConvReq2Ent(req *models.CreateRequest) models.Entity {
 	return models.Entity{
 		Options:   *req.Options,
 		URL:       req.URL,
+		Name:      req.Name,
 		XPATH:     req.XPATH,
 		NextCheck: time.Now().Add(time.Minute * time.Duration(req.Options.CheckFreq)),
 		History:   []models.DataPoint{models.DataPoint{Timestamp: time.Now(), Price: req.ExpectedPrice}},

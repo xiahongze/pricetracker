@@ -18,6 +18,11 @@ func CreateHandler(c echo.Context) error {
 	if err := c.Bind(req); err != nil {
 		return err
 	}
+
+	if msg, ok := req.Validate(); !ok {
+		return errors.New(msg)
+	}
+
 	content, ok := trackers.SimpleTracker(&req.URL, &req.XPATH)
 	if !ok {
 		return errors.New(content)

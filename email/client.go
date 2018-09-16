@@ -61,8 +61,13 @@ func init() {
 }
 
 // Send sends an email to destination
-func Send(body string, subject string, destEmail string) (err error) {
-	err = smtp.SendMail(host+":"+smtpPort, auth, from, []string{destEmail}, []byte(body))
+func Send(body string, subject string, to string) (err error) {
+	msg := "From: " + Identity + "<" + from + ">" + "\r\n" +
+		"Reply-To: " + "<" + from + ">" + "\r\n" +
+		"To: " + "<" + to + ">" + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		body
+	err = smtp.SendMail(host+":"+smtpPort, auth, from, []string{to}, []byte(msg))
 	if err != nil {
 		log.Printf("ERROR: SMTP error %s\n", err)
 	}

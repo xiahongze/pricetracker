@@ -41,10 +41,10 @@ Key: %s`, ent.URL, ent.Name, ent.XPATH, key)
 
 // Refresh refreshes prices from datastore
 func Refresh() {
+	log.Println("INFO: Refresh started")
 	entities := FetchData(fetchLimit)
-	if l := len(entities); l > 0 {
-		log.Println("INFO: have fetched", l, "entities")
-		for _, ent := range entities {
+	for _, ent := range entities {
+		if ent.K != nil {
 			if content, ok := trackers.SimpleTracker(&ent.URL, &ent.XPATH); ok {
 				if ent.History != nil {
 					last := ent.History[len(ent.History)-1]
@@ -67,7 +67,9 @@ func Refresh() {
 					}
 
 					// update history & save entity
+					log.Println(ent.History)
 					ent.History = append(ent.History, models.DataPoint{Price: content, Timestamp: time.Now()})
+					log.Println(ent.History)
 					ent.NextCheck = time.Now().Add(time.Minute * time.Duration(ent.Options.CheckFreq))
 					if len(ent.History) > int(ent.Options.MaxRecords) {
 						ent.History = ent.History[:ent.Options.MaxRecords]
@@ -86,7 +88,6 @@ func Refresh() {
 				log.Println("ERROR: failed to fetch price.", content)
 			}
 		}
-	} else {
-		log.Println("INFO: No updates")
 	}
+	log.Println("INFO: Refresh ended")
 }
