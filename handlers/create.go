@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -15,16 +14,15 @@ import (
 func Create(c echo.Context) error {
 	req := &models.CreateRequest{}
 	if err := c.Bind(req); err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	if msg, ok := req.Validate(); !ok {
-		return errors.New(msg)
+		return c.String(http.StatusBadRequest, msg)
 	}
 
-	content, ok := trackers.SimpleTracker(&req.URL, &req.XPATH)
-	if !ok {
-		return errors.New(content)
+	if content, ok := trackers.SimpleTracker(&req.URL, &req.XPATH); !ok {
+		return c.String(http.StatusBadRequest, content)
 	}
 
 	// add datastore handlers

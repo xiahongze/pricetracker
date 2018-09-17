@@ -67,9 +67,7 @@ func Refresh() {
 					}
 
 					// update history & save entity
-					log.Println(ent.History)
 					ent.History = append(ent.History, models.DataPoint{Price: content, Timestamp: time.Now()})
-					log.Println(ent.History)
 					ent.NextCheck = time.Now().Add(time.Minute * time.Duration(ent.Options.CheckFreq))
 					if len(ent.History) > int(ent.Options.MaxRecords) {
 						ent.History = ent.History[:ent.Options.MaxRecords]

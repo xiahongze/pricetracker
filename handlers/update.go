@@ -13,7 +13,7 @@ import (
 func Update(c echo.Context) error {
 	req := &models.UpdateRequest{}
 	if err := c.Bind(req); err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), gutils.CancelWaitTime)
