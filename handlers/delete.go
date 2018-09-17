@@ -28,5 +28,7 @@ func Delete(c echo.Context) error {
 		return err
 	}
 
+	sendEmail(entity, "Deleted")
+
 	return c.JSON(http.StatusOK, entity)
 }

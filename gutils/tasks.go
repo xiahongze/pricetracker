@@ -59,11 +59,11 @@ func Refresh() {
 						return
 					}
 					if ent.Options.AlertType == "onChange" && math.Abs(lastP-thisP) > 1e-3 {
-						subjec := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
-						email.Send(composeEmail(ent), subjec, ent.Options.Email)
+						subject := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
+						email.Send(composeEmail(ent), subject, ent.Options.Email)
 					} else if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
-						subjec := fmt.Sprintf("[%s] <%s> Alert: price drops to %s!", email.Identity, ent.Name, content)
-						email.Send(composeEmail(ent), subjec, ent.Options.Email)
+						subject := fmt.Sprintf("[%s] <%s> Alert: price drops to %s!", email.Identity, ent.Name, content)
+						email.Send(composeEmail(ent), subject, ent.Options.Email)
 					}
 
 					// update history & save entity

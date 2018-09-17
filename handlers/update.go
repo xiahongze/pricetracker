@@ -50,5 +50,7 @@ func Update(c echo.Context) error {
 		return err
 	}
 
+	sendEmail(entity, "Updated")
+
 	return c.JSON(http.StatusOK, entity)
 }

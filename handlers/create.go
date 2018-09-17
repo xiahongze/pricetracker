@@ -35,5 +35,7 @@ func Create(c echo.Context) error {
 		return err
 	}
 
+	sendEmail(&entity, "Created")
+
 	return c.JSON(http.StatusCreated, entity)
 }
