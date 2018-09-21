@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -21,8 +23,30 @@ func Create(c echo.Context) error {
 		return c.String(http.StatusBadRequest, msg)
 	}
 
-	if content, ok := trackers.SimpleTracker(&req.URL, &req.XPATH); !ok {
-		return c.String(http.StatusBadRequest, content)
+	var (
+		content string
+		ok      bool
+	)
+
+	if req.Options.UseChrome {
+		if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
+			return c.String(http.StatusBadRequest, content)
+		}
+	} else {
+		if content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH); !ok {
+			req.Options.UseChrome = true
+			log.Println("Resorting to Chrome")
+			if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
+				return c.String(http.StatusBadRequest, content)
+			}
+		}
+	}
+
+	// check content as expected
+	if content != req.ExpectedPrice {
+		return c.String(http.StatusExpectationFailed,
+			fmt.Sprintf("expected price (%s) != extracted price (%s)",
+				req.ExpectedPrice, content))
 	}
 
 	// add datastore handlers

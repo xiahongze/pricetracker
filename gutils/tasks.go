@@ -43,9 +43,15 @@ Key: %s`, ent.URL, ent.Name, ent.XPATH, key)
 func Refresh() {
 	log.Println("INFO: Refresh started")
 	entities := FetchData(fetchLimit)
+	var tracker trackers.Tracker
 	for _, ent := range entities {
 		if ent.K != nil {
-			if content, ok := trackers.SimpleTracker(&ent.URL, &ent.XPATH); ok {
+			if ent.Options.UseChrome {
+				tracker = trackers.ChromeTracker
+			} else {
+				tracker = trackers.SimpleTracker
+			}
+			if content, ok := tracker(&ent.URL, &ent.XPATH); ok {
 				if ent.History != nil {
 					last := ent.History[len(ent.History)-1]
 					lastP, err := strconv.ParseFloat(priceRegex.FindString(last.Price), 32)
