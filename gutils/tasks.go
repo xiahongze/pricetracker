@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"regexp"
 	"strconv"
@@ -54,17 +53,11 @@ func Refresh() {
 			if content, ok := tracker(&ent.URL, &ent.XPATH); ok {
 				if ent.History != nil {
 					last := ent.History[len(ent.History)-1]
-					lastP, err := strconv.ParseFloat(priceRegex.FindString(last.Price), 32)
-					if err != nil {
-						log.Println("ERROR: failed to convert price", err, "last price:", last.Price)
-						return
-					}
 					thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)
 					if err != nil {
 						log.Println("ERROR: failed to convert price", err, "this price:", content)
-						return
 					}
-					if ent.Options.AlertType == "onChange" && math.Abs(lastP-thisP) > 1e-3 {
+					if ent.Options.AlertType == "onChange" && content != last.Price {
 						subject := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
 						email.Send(composeEmail(ent), subject, ent.Options.Email)
 					} else if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
