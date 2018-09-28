@@ -7,6 +7,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/xiahongze/pricetracker/email"
@@ -51,6 +52,7 @@ func Refresh() {
 				tracker = trackers.SimpleTracker
 			}
 			if content, ok := tracker(&ent.URL, &ent.XPATH); ok {
+				content = strings.TrimSpace(content)
 				if ent.History != nil {
 					last := ent.History[len(ent.History)-1]
 					thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)

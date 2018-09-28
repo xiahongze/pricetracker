@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/xiahongze/pricetracker/gutils"
@@ -42,6 +43,7 @@ func Create(c echo.Context) error {
 		}
 	}
 
+	content = strings.TrimSpace(content)
 	// check content as expected
 	if content != req.ExpectedPrice {
 		return c.String(http.StatusExpectationFailed,
