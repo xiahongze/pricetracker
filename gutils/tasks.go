@@ -85,6 +85,10 @@ func Refresh() {
 				}
 			} else {
 				log.Println("ERROR: failed to fetch price.", content)
+				key, _ := ent.K.MarshalJSON()
+				log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
+				subject := fmt.Sprintf("[%s] <%s> Alert: failed to fetch price for reason `%s`!", email.Identity, ent.Name, content)
+				email.Send(composeEmail(ent), subject, ent.Options.Email)
 			}
 		}
 	}
