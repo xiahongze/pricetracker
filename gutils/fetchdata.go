@@ -20,7 +20,7 @@ func FetchData(n int) []models.Entity {
 	q := datastore.NewQuery(EntityType).Filter("NextCheck <", time.Now()).Limit(n)
 
 	i := 0
-	for t := DsClient.Run(ctx, q); ; {
+	for t := DsClient.Run(ctx, q); i < n; i++ {
 		entity := &entities[i]
 		_, err := t.Next(entity)
 		if err == iterator.Done {
@@ -30,7 +30,6 @@ func FetchData(n int) []models.Entity {
 			// Handle error.
 			log.Println("ERROR:", err)
 		}
-		i++
 	}
 	return entities
 }
