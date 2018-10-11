@@ -28,17 +28,6 @@ func init() {
 	}
 }
 
-func composeEmail(ent models.Entity) string {
-	key, err := ent.K.MarshalJSON()
-	if err != nil {
-		key = []byte("unrecognizable key")
-	}
-	return fmt.Sprintf(`Link to the website: %s
-Name: %s
-XPATH: %s
-Key: %s`, ent.URL, ent.Name, ent.XPATH, key)
-}
-
 // Refresh refreshes prices from datastore
 func Refresh() {
 	log.Println("INFO: Refresh started")
@@ -61,10 +50,10 @@ func Refresh() {
 					}
 					if ent.Options.AlertType == "onChange" && content != last.Price {
 						subject := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
-						email.Send(composeEmail(ent), subject, ent.Options.Email)
+						ent.SendEmail(&subject)
 					} else if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
 						subject := fmt.Sprintf("[%s] <%s> Alert: price drops to %s!", email.Identity, ent.Name, content)
-						email.Send(composeEmail(ent), subject, ent.Options.Email)
+						ent.SendEmail(&subject)
 					}
 
 					// update history & save entity
@@ -88,7 +77,7 @@ func Refresh() {
 				key, _ := ent.K.MarshalJSON()
 				log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
 				subject := fmt.Sprintf("[%s] <%s> Alert: failed to fetch price for reason `%s`!", email.Identity, ent.Name, content)
-				email.Send(composeEmail(ent), subject, ent.Options.Email)
+				ent.SendEmail(&subject)
 			}
 		}
 	}

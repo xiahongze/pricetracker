@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo"
+	"github.com/xiahongze/pricetracker/email"
 	"github.com/xiahongze/pricetracker/gutils"
 	"github.com/xiahongze/pricetracker/models"
 	"github.com/xiahongze/pricetracker/trackers"
@@ -59,7 +60,8 @@ func Create(c echo.Context) error {
 		return err
 	}
 
-	sendEmail(&entity, "Created")
+	subject := fmt.Sprintf("[%s] <%s> INFO: %s!", email.Identity, entity.Name, "Created")
+	entity.SendEmail(&subject)
 
 	return c.JSON(http.StatusCreated, entity)
 }

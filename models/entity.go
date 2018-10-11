@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
+	"github.com/xiahongze/pricetracker/email"
 )
 
 type (
@@ -54,4 +55,15 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 		}
 	}
 	return nil
+}
+
+// SendEmail does what the name says
+func (entity *Entity) SendEmail(subject *string) {
+	if b, err := json.MarshalIndent(entity, "", "    "); err == nil {
+		if err := email.Send(string(b), *subject, entity.Options.Email); err != nil {
+			log.Print("failed to send email", err)
+		}
+	} else {
+		log.Print("failed to marshal entity", err)
+	}
 }

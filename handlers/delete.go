@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/xiahongze/pricetracker/email"
 	"github.com/xiahongze/pricetracker/gutils"
 	"github.com/xiahongze/pricetracker/models"
 )
@@ -28,7 +30,8 @@ func Delete(c echo.Context) error {
 		return err
 	}
 
-	sendEmail(entity, "Deleted")
+	subject := fmt.Sprintf("[%s] <%s> INFO: %s!", email.Identity, entity.Name, "Deleted")
+	entity.SendEmail(&subject)
 
 	return c.JSON(http.StatusOK, entity)
 }

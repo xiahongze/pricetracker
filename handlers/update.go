@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo"
+	"github.com/xiahongze/pricetracker/email"
 	"github.com/xiahongze/pricetracker/gutils"
 	"github.com/xiahongze/pricetracker/models"
 )
@@ -50,7 +52,8 @@ func Update(c echo.Context) error {
 		return err
 	}
 
-	sendEmail(entity, "Updated")
+	subject := fmt.Sprintf("[%s] <%s> INFO: %s!", email.Identity, entity.Name, "Updated")
+	entity.SendEmail(&subject)
 
 	return c.JSON(http.StatusOK, entity)
 }
