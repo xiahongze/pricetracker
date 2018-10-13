@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 
 	"golang.org/x/net/html"
 	"gopkg.in/xmlpath.v2"
@@ -66,5 +67,6 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 		extractHelper(bytes.NewReader(b.Bytes()))
 	}
 
+	strings.TrimSpace(content)
 	return
 }

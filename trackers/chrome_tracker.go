@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/chromedp/chromedp"
@@ -64,6 +65,5 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 		log.Println(err)
 		return err.Error(), false
 	}
-
-	return res, true
+	return strings.TrimSpace(res), true
 }
