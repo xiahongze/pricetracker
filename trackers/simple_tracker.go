@@ -15,16 +15,23 @@ import (
 // SimpleTracker accepts url and xpath to extract content
 // and returns content/error message, ok
 func SimpleTracker(url, xpath *string) (content string, ok bool) {
+	defer func() {
+		if !ok {
+			log.Println(content)
+		}
+		log.Println("INFO: Found", content, "from", *url)
+	}()
+
 	xpExec, err := xmlpath.Compile(*xpath)
 	if err != nil {
-		log.Printf("ERROR: failed to compile xpath %s", *xpath)
+		content = "ERROR: failed to compile xpath %s" + *xpath
 		ok = false
 		return
 	}
 
 	resp, getErr := http.Get(*url)
 	if getErr != nil {
-		log.Println("ERROR: failed to fetch the website")
+		content = "ERROR: failed to fetch the website"
 		ok = false
 		return
 	}
@@ -36,19 +43,15 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 		xmlRoot, xmlErr := xmlpath.ParseHTML(reader)
 		if xmlErr != nil {
 			content = "ERROR: parse xml error: " + xmlErr.Error()
-			log.Println(content)
 			ok = false
 			return
 		}
-		value, found := xpExec.String(xmlRoot)
-		if !found {
-			ok = false
+		content, ok = xpExec.String(xmlRoot)
+		content = strings.TrimSpace(content)
+		if !ok {
 			content = "value not found"
 			return
 		}
-		log.Println("INFO: Found", value, "from", *url)
-		content = value
-		ok = true
 	}
 
 	// step 1. read directly from body
@@ -59,7 +62,6 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 		root, err := html.Parse(bytes.NewReader(body))
 		if err != nil {
 			content = "ERROR: parse html" + err.Error()
-			log.Println(content)
 			return
 		}
 		var b bytes.Buffer
@@ -67,6 +69,5 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 		extractHelper(bytes.NewReader(b.Bytes()))
 	}
 
-	strings.TrimSpace(content)
 	return
 }
