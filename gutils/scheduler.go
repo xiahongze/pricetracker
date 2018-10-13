@@ -12,11 +12,12 @@ var SchdFreq = time.Minute * 1
 
 func init() {
 	if v, ok := os.LookupEnv("SCHEDULE_FREQ"); ok {
-		if vi, err := strconv.Atoi(v); err == nil {
-			SchdFreq = time.Minute * time.Duration(vi)
-		} else {
+		vi, err := strconv.Atoi(v)
+		if err != nil {
 			log.Println("WARN: SCHEDULE_FREQ is not int but ", v)
+			return
 		}
+		SchdFreq = time.Minute * time.Duration(vi)
 	}
 }
 

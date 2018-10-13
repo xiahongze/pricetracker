@@ -80,7 +80,8 @@ func processEntity(ent *models.Entity) {
 	if ent.Options.AlertType == "onChange" && content != last.Price {
 		subject := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
 		ent.SendEmail(&subject)
-	} else if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
+	}
+	if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
 		subject := fmt.Sprintf("[%s] <%s> Alert: price drops to %s!", email.Identity, ent.Name, content)
 		ent.SendEmail(&subject)
 	}

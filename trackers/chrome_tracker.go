@@ -18,15 +18,16 @@ var (
 )
 
 func init() {
-	if v, ok := os.LookupEnv("CHROME_TIMEOUT"); ok {
-		if vi, err := strconv.Atoi(v); err == nil {
-			chromeTimeout = time.Second * time.Duration(vi)
-		} else {
-			log.Println("WARN: CHROME_TIMEOUT is not int but ", v)
-		}
-	}
 	if v, ok := os.LookupEnv("CHROME_PATH"); ok {
 		chromePath = v
+	}
+	if v, ok := os.LookupEnv("CHROME_TIMEOUT"); ok {
+		vi, err := strconv.Atoi(v)
+		if err != nil {
+			log.Println("WARN: CHROME_TIMEOUT is not int but ", v)
+			return
+		}
+		chromeTimeout = time.Second * time.Duration(vi)
 	}
 }
 
@@ -35,17 +36,11 @@ func init() {
 func ChromeTracker(url, xpath *string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), chromeTimeout)
 	defer cancel()
-	var runnerOpt chromedp.Option
-	if chromePath == "" {
-		runnerOpt = chromedp.WithRunnerOptions(
-			runner.Flag("headless", true),
-		)
-	} else {
-		runnerOpt = chromedp.WithRunnerOptions(
-			runner.Path(chromePath),
-			runner.Flag("headless", true),
-		)
+	opts := []runner.CommandLineOption{runner.Flag("headless", true)}
+	if chromePath != "" {
+		opts = append(opts, runner.Path(chromePath))
 	}
+	runnerOpt := chromedp.WithRunnerOptions(opts...)
 
 	// create chrome instance
 	c, err := chromedp.New(ctx, runnerOpt)

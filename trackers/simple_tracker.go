@@ -34,21 +34,21 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 	// create closure
 	extractHelper := func(reader io.Reader) {
 		xmlRoot, xmlErr := xmlpath.ParseHTML(reader)
-
 		if xmlErr != nil {
 			content = "ERROR: parse xml error: " + xmlErr.Error()
 			log.Println(content)
 			ok = false
 			return
 		}
-		if value, found := xpExec.String(xmlRoot); found {
-			log.Println("INFO: Found", value, "from", *url)
-			content = value
-			ok = true
-		} else {
+		value, found := xpExec.String(xmlRoot)
+		if !found {
 			ok = false
 			content = "value not found"
+			return
 		}
+		log.Println("INFO: Found", value, "from", *url)
+		content = value
+		ok = true
 	}
 
 	// step 1. read directly from body

@@ -34,36 +34,33 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 	defer func() {
 		k, _ := json.Marshal(entity.K)
 		if err != nil {
-			log.Printf("ERROR: failed to save entity with %s\n", err)
-		} else {
-			log.Printf("INFO: saved K=%s\n", k)
+			log.Printf("ERROR: failed to save entity (K=%s) with %s\n", k, err)
+			return
 		}
+		log.Printf("INFO: saved K=%s\n", k)
 	}()
 
-	if entity.K == nil {
-		k := datastore.IncompleteKey(entTypName, nil)
-		var key *datastore.Key
-		key, err = dsClient.Put(ctx, k, entity)
-		if err != nil {
-			return err
-		}
-		entity.K = key
-	} else {
+	if entity.K != nil {
 		_, err = dsClient.Put(ctx, entity.K, entity)
-		if err != nil {
-			return err
-		}
+		return
 	}
-	return nil
+	entity.K = datastore.IncompleteKey(entTypName, nil)
+	entity.K, err = dsClient.Put(ctx, entity.K, entity)
+	if err != nil {
+		return
+	}
+
+	return
 }
 
 // SendEmail does what the name says
 func (entity *Entity) SendEmail(subject *string) {
-	if b, err := json.MarshalIndent(entity, "", "    "); err == nil {
-		if err := email.Send(string(b), *subject, entity.Options.Email); err != nil {
-			log.Print("failed to send email", err)
-		}
-	} else {
+	b, err := json.MarshalIndent(entity, "", "    ")
+	if err != nil {
 		log.Print("failed to marshal entity", err)
+		return
+	}
+	if err := email.Send(string(b), *subject, entity.Options.Email); err != nil {
+		log.Print("failed to send email", err)
 	}
 }

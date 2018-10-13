@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/xiahongze/pricetracker/email"
@@ -30,21 +29,19 @@ func Create(c echo.Context) error {
 		ok      bool
 	)
 
+	if !req.Options.UseChrome {
+		content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH)
+	}
+	if !ok {
+		req.Options.UseChrome = true
+		log.Println("INFO: Resorting to Chrome")
+	}
 	if req.Options.UseChrome {
 		if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
 			return c.String(http.StatusBadRequest, content)
 		}
-	} else {
-		if content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH); !ok {
-			req.Options.UseChrome = true
-			log.Println("Resorting to Chrome")
-			if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
-				return c.String(http.StatusBadRequest, content)
-			}
-		}
 	}
 
-	content = strings.TrimSpace(content)
 	// check content as expected
 	if content != req.ExpectedPrice {
 		return c.String(http.StatusExpectationFailed,
