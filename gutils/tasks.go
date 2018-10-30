@@ -40,12 +40,9 @@ func processEntity(ent *models.Entity) {
 		cancel()
 	}()
 
-	var tracker trackers.Tracker
-	switch ent.Options.UseChrome {
-	case true:
+	var tracker trackers.Tracker = trackers.SimpleTracker
+	if ent.Options.UseChrome != nil && *ent.Options.UseChrome {
 		tracker = trackers.ChromeTracker
-	default:
-		tracker = trackers.SimpleTracker
 	}
 
 	content, ok := tracker(&ent.URL, &ent.XPATH)

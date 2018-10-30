@@ -41,8 +41,18 @@ func Update(c echo.Context) error {
 	if req.Options.Threshold != 0 {
 		entity.Options.Threshold = req.Options.Threshold
 	}
-	if req.Options.UseChrome {
+	if req.Options.UseChrome != nil {
 		entity.Options.UseChrome = req.Options.UseChrome
+	}
+
+	if req.Name != "" {
+		entity.Name = req.Name
+	}
+	if req.URL != "" {
+		entity.URL = req.URL
+	}
+	if req.XPATH != "" {
+		entity.XPATH = req.XPATH
 	}
 
 	// update entity

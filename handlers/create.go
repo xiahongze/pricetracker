@@ -29,14 +29,14 @@ func Create(c echo.Context) error {
 		ok      bool
 	)
 
-	if !req.Options.UseChrome {
+	if req.Options.UseChrome == nil || !*req.Options.UseChrome {
 		content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH)
 	}
 	if !ok {
-		req.Options.UseChrome = true
+		*req.Options.UseChrome = true
 		log.Println("INFO: Resorting to Chrome")
 	}
-	if req.Options.UseChrome {
+	if req.Options.UseChrome != nil && *req.Options.UseChrome {
 		if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
 			return c.String(http.StatusBadRequest, content)
 		}
