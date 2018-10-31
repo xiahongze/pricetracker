@@ -25,15 +25,16 @@ func Create(c echo.Context) error {
 	}
 
 	var (
-		content string
-		ok      bool
+		content   string
+		ok        bool
+		useChrome = true
 	)
 
 	if req.Options.UseChrome == nil || !*req.Options.UseChrome {
 		content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH)
 	}
 	if !ok {
-		*req.Options.UseChrome = true
+		req.Options.UseChrome = &useChrome
 		log.Println("INFO: Resorting to Chrome")
 	}
 	if req.Options.UseChrome != nil && *req.Options.UseChrome {
