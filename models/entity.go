@@ -31,7 +31,7 @@ type (
 )
 
 // Save saves the entry in the datastore
-func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *datastore.Client) (err error) {
+func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *datastore.Client, check bool) (err error) {
 	defer func() {
 		k, _ := json.Marshal(entity.K)
 		if err != nil {
@@ -47,7 +47,7 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 			if err := tx.Get(entity.K, &_ent); err != nil {
 				return err
 			}
-			if _ent.NextCheck.After(time.Now()) {
+			if _ent.NextCheck.After(time.Now()) && check {
 				return errors.New("Entity was updated by another goroutine")
 			}
 			if _, err := tx.Mutate(datastore.NewUpdate(entity.K, entity)); err != nil {

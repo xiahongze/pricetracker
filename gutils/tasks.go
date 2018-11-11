@@ -32,9 +32,9 @@ func processEntity(ent *models.Entity) {
 		return
 	}
 	// save the entity before returning
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 	defer func() {
-		if err := ent.Save(ctx, EntityType, DsClient); err != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
+		if err := ent.Save(ctx, EntityType, DsClient, true); err != nil {
 			log.Println("ERROR: failed to save entity:", err, ". Entity: ", ent)
 		}
 		cancel()

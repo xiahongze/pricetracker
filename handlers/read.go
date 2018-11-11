@@ -19,7 +19,7 @@ func Read(c echo.Context) error {
 	defer cancel()
 	entity := &models.Entity{}
 	if err := gutils.DsClient.Get(ctx, req.Key, entity); err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 	return c.JSON(http.StatusOK, entity)
 }

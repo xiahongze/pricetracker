@@ -54,7 +54,7 @@ func Create(c echo.Context) error {
 	entity := gutils.ConvReq2Ent(req)
 	ctx, cancel := context.WithTimeout(context.Background(), gutils.CancelWaitTime)
 	defer cancel()
-	if err := entity.Save(ctx, gutils.EntityType, gutils.DsClient); err != nil {
+	if err := entity.Save(ctx, gutils.EntityType, gutils.DsClient, false); err != nil {
 		return err
 	}
 

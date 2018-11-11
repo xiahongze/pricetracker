@@ -21,13 +21,13 @@ func Delete(c echo.Context) error {
 	defer cancel()
 	entity := &models.Entity{}
 	if err := gutils.DsClient.Get(ctx, req.Key, entity); err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	ctx1, cancel1 := context.WithTimeout(context.Background(), gutils.CancelWaitTime)
 	defer cancel1()
 	if err := gutils.DsClient.Delete(ctx1, req.Key); err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	subject := fmt.Sprintf("[%s] <%s> INFO: %s!", email.Identity, entity.Name, "Deleted")

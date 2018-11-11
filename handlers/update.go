@@ -22,7 +22,7 @@ func Update(c echo.Context) error {
 	defer cancel()
 	entity := &models.Entity{}
 	if err := gutils.DsClient.Get(ctx, req.Key, entity); err != nil {
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	// update relevant fields
@@ -58,8 +58,8 @@ func Update(c echo.Context) error {
 	// update entity
 	ctx1, cancel1 := context.WithTimeout(context.Background(), gutils.CancelWaitTime)
 	defer cancel1()
-	if err := entity.Save(ctx1, gutils.EntityType, gutils.DsClient); err != nil {
-		return err
+	if err := entity.Save(ctx1, gutils.EntityType, gutils.DsClient, false); err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	subject := fmt.Sprintf("[%s] <%s> INFO: %s!", email.Identity, entity.Name, "Updated")
