@@ -3,6 +3,7 @@ package models
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
@@ -41,14 +42,24 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 	}()
 
 	if entity.K != nil {
-		_, err = dsClient.Put(ctx, entity.K, entity)
+		_, err = dsClient.RunInTransaction(ctx, func(tx *datastore.Transaction) error {
+			_ent := Entity{}
+			if err := tx.Get(entity.K, &_ent); err != nil {
+				return err
+			}
+			if _ent.NextCheck.After(time.Now()) {
+				return errors.New("Entity was updated by another goroutine")
+			}
+			if _, err := tx.Mutate(datastore.NewUpdate(entity.K, entity)); err != nil {
+				return err
+			}
+			return nil
+		})
 		return
 	}
+
 	entity.K = datastore.IncompleteKey(entTypName, nil)
 	entity.K, err = dsClient.Put(ctx, entity.K, entity)
-	if err != nil {
-		return
-	}
 
 	return
 }
