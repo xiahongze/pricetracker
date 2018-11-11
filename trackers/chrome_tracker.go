@@ -35,9 +35,8 @@ func init() {
 // and returns content/error message, ok
 func ChromeTracker(url, xpath *string) (string, bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), chromeTimeout)
-	ctx1, cancel1 := context.WithTimeout(context.Background(), chromeTimeout)
 	defer cancel()
-	defer cancel1()
+
 	opts := []runner.CommandLineOption{runner.Flag("headless", true)}
 	if chromePath != "" {
 		opts = append(opts, runner.Path(chromePath))
@@ -58,6 +57,8 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	}
 
 	// run the tasks
+	ctx1, cancel1 := context.WithTimeout(context.Background(), chromeTimeout)
+	defer cancel1()
 	if err := c.Run(ctx1, tasks); err != nil {
 		log.Println(err)
 		return err.Error(), false
