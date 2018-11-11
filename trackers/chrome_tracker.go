@@ -50,6 +50,14 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 		return err.Error(), false
 	}
 
+	defer func() {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*20)
+		if err := c.Shutdown(ctx); err != nil {
+			log.Printf("WARN: shutdown chrome with error %s", err.Error())
+		}
+		cancel()
+	}()
+
 	var res string
 	tasks := chromedp.Tasks{
 		chromedp.Navigate(*url),
@@ -57,11 +65,10 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	}
 
 	// run the tasks
-	ctx1, cancel1 := context.WithTimeout(context.Background(), chromeTimeout)
-	defer cancel1()
-	if err := c.Run(ctx1, tasks); err != nil {
+	if err := c.Run(ctx, tasks); err != nil {
 		log.Println(err)
 		return err.Error(), false
 	}
+
 	return strings.TrimSpace(res), true
 }
