@@ -56,12 +56,16 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 			log.Printf("WARN: shutdown chrome with error %s", err.Error())
 		}
 		cancel()
+
+		if err := c.Wait(); err != nil {
+			log.Printf("WARN: wait for chrome with error %s", err.Error())
+		}
 	}()
 
 	var res string
 	tasks := chromedp.Tasks{
 		chromedp.Navigate(*url),
-		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
+		chromedp.Text(*xpath, &res, chromedp.NodeReady, chromedp.BySearch),
 	}
 
 	// run the tasks
