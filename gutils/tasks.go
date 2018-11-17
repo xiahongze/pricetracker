@@ -52,11 +52,13 @@ func processEntity(ent *models.Entity) {
 		log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
 		subject := fmt.Sprintf("[%s] <%s> Alert: failed to fetch price for reason `%s`!", email.Identity, ent.Name, content)
 		ent.SendEmail(&subject)
+		// do not check again after 30 minutes
+		ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 	if ent.History == nil {
 		log.Println("WARN: zero price history.", ent)
-		ent.History = []models.DataPoint{models.DataPoint{Price: content, Timestamp: time.Now()}}
+		ent.History = []models.DataPoint{{Price: content, Timestamp: time.Now()}}
 		return
 	}
 
