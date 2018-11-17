@@ -53,7 +53,7 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	var res string
 	tasks := chromedp.Tasks{
 		chromedp.Navigate(*url),
-		chromedp.Text(*xpath, &res, chromedp.NodeReady, chromedp.BySearch),
+		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
 	}
 
 	// run the tasks
