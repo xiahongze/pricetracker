@@ -68,5 +68,7 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 		log.Fatal(err)
 	}
 
+	c.Wait()
+
 	return strings.TrimSpace(res), true
 }
