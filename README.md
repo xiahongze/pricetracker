@@ -20,6 +20,12 @@ In the project directory, run
 make install-deps build
 ```
 
+## Important fix in chromedp
+
+In `vendor/github.com/chromedp/chromedp/runner/runner.go:248`, change to `if r.cmd != nil && r.cmd.Process != nil {` as chromium did not shutdown properly and there is no harm sending signalterm anyway.
+
+Comment out `vendor/github.com/chromedp/chromedp/runner/runner.go:11`.
+
 ## Setup and Serve
 
 Once you have compiled this project, a binary executable named `pricetracker` should be sitting in your directory. There are some important environment variables that you want to setup before running it.
