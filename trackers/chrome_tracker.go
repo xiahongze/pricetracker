@@ -62,5 +62,11 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 		return err.Error(), false
 	}
 
+	// shutdown chrome
+	err = c.Shutdown(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return strings.TrimSpace(res), true
 }
