@@ -8,17 +8,40 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/xiahongze/pricetracker/gutils"
-	"github.com/xiahongze/pricetracker/server"
+	"github.com/xiahongze/pricetracker/handlers"
 )
+
+var port = "8080"
+
+func build() *echo.Echo {
+	e := echo.New()
+	// Middleware
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "${time_rfc3339} [echo] ${short_file}:${line}: ${method} ${uri} ${status} from ${remote_ip} latency=${latency_human} error=(${error})\n",
+	}))
+	e.Use(middleware.Recover())
+
+	// Routes
+	e.POST("/create", handlers.Create)
+	e.POST("/read", handlers.Read)
+	e.POST("/update", handlers.Update)
+	e.POST("/delete", handlers.Delete)
+
+	return e
+}
 
 func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+	if val, ok := os.LookupEnv("PORT"); ok {
+		port = val
+	}
 }
 
 func main() {
-	// build server
-	e := server.Build()
+	e := build()
 
 	// scheduling tasks
 	schd := gutils.Schedule(func() {
@@ -33,7 +56,7 @@ func main() {
 
 	// Start server
 	go func() {
-		if err := e.Start(":" + server.Port); err != nil {
+		if err := e.Start(":" + port); err != nil {
 			e.Logger.Info("shutting down the server")
 		}
 	}()
