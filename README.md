@@ -10,14 +10,13 @@ Given an `xpath` and a link, one could extract price information from the websit
 
 Dependencies:
 
-- go 1.8.3 (should work with higher versions)
-- dep v0.5.0
-- and those listed in `Gopkg.toml`
+- go 1.2+ (should work with higher versions)
+- use go module
 
 In the project directory, run
 
 ```bash
-make install-deps build
+go build
 ```
 
 ## Important fix in chromedp
