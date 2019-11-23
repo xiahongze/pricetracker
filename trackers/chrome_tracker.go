@@ -9,12 +9,33 @@ import (
 	"time"
 
 	"github.com/chromedp/chromedp"
-	"github.com/chromedp/chromedp/runner"
 )
 
 var (
 	chromeTimeout = time.Second * 120
 	chromePath    = ""
+	chromeOpts    = []chromedp.ExecAllocatorOption{
+		chromedp.NoFirstRun,
+		chromedp.NoDefaultBrowserCheck,
+		chromedp.Headless,
+		chromedp.DisableGPU,
+		chromedp.Flag("enable-automation", false),
+		chromedp.Flag("disable-background-networking", true),
+		chromedp.Flag("disable-background-timer-throttling", true),
+		chromedp.Flag("disable-backgrounding-occluded-windows", true),
+		chromedp.Flag("disable-breakpad", true),
+		chromedp.Flag("disable-client-side-phishing-detection", true),
+		chromedp.Flag("disable-default-apps", true),
+		chromedp.Flag("disable-dev-shm-usage", true),
+		chromedp.Flag("disable-extensions", true),
+		chromedp.Flag("disable-features", "site-per-process,TranslateUI,BlinkGenPropertyTrees"),
+		chromedp.Flag("disable-hang-monitor", true),
+		chromedp.Flag("disable-ipc-flooding-protection", true),
+		chromedp.Flag("disable-popup-blocking", true),
+		chromedp.Flag("disable-prompt-on-repost", true),
+		chromedp.Flag("disable-renderer-backgrounding", true),
+		chromedp.Flag("disable-sync", true),
+	}
 )
 
 func init() {
@@ -34,41 +55,17 @@ func init() {
 // ChromeTracker uses headless chrome to fetch content from given url and xpath
 // and returns content/error message, ok
 func ChromeTracker(url, xpath *string) (string, bool) {
-	ctx, cancel := context.WithTimeout(context.Background(), chromeTimeout)
+	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), chromeOpts...)
+	defer cancel()
+	ctx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
 
-	opts := []runner.CommandLineOption{runner.Flag("headless", true)}
-	if chromePath != "" {
-		opts = append(opts, runner.Path(chromePath))
-	}
-	runnerOpt := chromedp.WithRunnerOptions(opts...)
-
-	// create chrome instance
-	c, err := chromedp.New(ctx, runnerOpt)
-	if err != nil {
-		log.Println(err)
-		return err.Error(), false
-	}
-
 	var res string
-	tasks := chromedp.Tasks{
-		chromedp.Navigate(*url),
-		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
-	}
+	err := chromedp.Run(ctx, chromedp.Navigate(*url), chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch))
 
-	// run the tasks
-	if err := c.Run(ctx, tasks); err != nil {
-		log.Println(err)
-		return err.Error(), false
-	}
-
-	// shutdown chrome
-	err = c.Shutdown(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	c.Wait()
 
 	return strings.TrimSpace(res), true
 }
