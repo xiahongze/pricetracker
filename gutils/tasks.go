@@ -23,7 +23,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 		if err := ent.Save(ctx, EntityType, DsClient, true); err != nil {
-			log.Println("ERROR: failed to save entity:", err, ". Entity: ", ent)
+			log.Printf("ERROR: failed to save entity [%s] with %v", ent.Name, err)
 		}
 		cancel()
 	}()
@@ -91,6 +91,7 @@ func Refresh(pushClient *pushover.Client, fetchLimit int) {
 	log.Println("INFO: Refresh started")
 	entities := FetchData(fetchLimit)
 	for _, ent := range entities {
+		log.Printf("INFO: processing [%s] XPATH (%s) at %s", ent.Name, ent.XPATH, ent.URL)
 		processEntity(&ent, pushClient)
 	}
 	log.Println("INFO: Refresh ended")

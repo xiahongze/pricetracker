@@ -49,7 +49,8 @@ func main() {
 	flag.StringVar(&userToken, "userToken", "", "pushover user token")
 	flag.StringVar(&port, "port", "8080", "server port")
 	flag.IntVar(&schdlFreq, "schdlFreq", 2, "schedule frequency in minutes")
-	flag.IntVar(&fetchLimit, "fetchLimit", 2, "fetch limit from google datastore")
+	flag.IntVar(&fetchLimit, "fetchLimit", 10, "fetch limit from google datastore")
+	flag.Parse()
 	if appToken == "" || userToken == "" {
 		log.Fatalln("appToken and userToken must be given")
 	}
