@@ -5,7 +5,6 @@ import "cloud.google.com/go/datastore"
 type (
 	// Options is the options for an entry
 	Options struct {
-		Email      string  `json:"email"`
 		CheckFreq  int16   `json:"checkFreq"` // in minutes
 		AlertType  string  `json:"alertType"`
 		Threshold  float32 `json:"threshold"`
@@ -50,9 +49,6 @@ func (r *CreateRequest) Validate() (string, bool) {
 	}
 	if r.ExpectedPrice == "" {
 		return "expectedPrice is not set", false
-	}
-	if r.Options == nil {
-		return "options.email is not set", false
 	}
 	r.Options.setDefault()
 	return "", true

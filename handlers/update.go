@@ -30,9 +30,6 @@ func MakeUpdate(client *pushover.Client) echo.HandlerFunc {
 		if req.Options.AlertType != "" {
 			entity.Options.AlertType = req.Options.AlertType
 		}
-		if req.Options.Email != "" {
-			entity.Options.Email = req.Options.Email
-		}
 		if req.Options.CheckFreq != 0 {
 			entity.Options.CheckFreq = req.Options.CheckFreq
 		}

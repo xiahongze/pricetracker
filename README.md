@@ -79,7 +79,6 @@ POST `http://localhost:8080/create`
 	"expectedPrice": "$120.49",
 	"name": "Braun Thermoscan 7 IRT 6520",
 	"options": {
-		"email": "user@gmail.com"
 	}
 }
 ```
@@ -104,7 +103,6 @@ POST `http://localhost:8080/update`
 {
 	"key": "EhcKDHByaWNlLXRyYWNrcxCAgICgpPOTCa",
 	"options": {
-		"email": "user@gmail.com"
 	}
 }
 ```
