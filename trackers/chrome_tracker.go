@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	chromeTimeout = time.Second * 120
+	chromeTimeout = time.Second * 60
 	chromePath    = ""
 	chromeOpts    = []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
@@ -55,9 +55,11 @@ func init() {
 // ChromeTracker uses headless chrome to fetch content from given url and xpath
 // and returns content/error message, ok
 func ChromeTracker(url, xpath *string) (string, bool) {
-	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), chromeOpts...)
+	ctx, cancel := context.WithTimeout(context.Background(), chromeTimeout)
 	defer cancel()
-	ctx, cancel := chromedp.NewContext(allocCtx)
+	ctx, cancel = chromedp.NewExecAllocator(ctx, chromeOpts...)
+	defer cancel()
+	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
 
 	var res string
