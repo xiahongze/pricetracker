@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
-	"github.com/xiahongze/pricetracker/email"
 )
 
 type (
@@ -64,14 +63,13 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 	return
 }
 
-// SendEmail does what the name says
-func (entity *Entity) SendEmail(subject *string) {
+// String returns the JSON String representation
+func (entity *Entity) String() string {
+	// marshal the entity as the message
 	b, err := json.MarshalIndent(entity, "", "    ")
 	if err != nil {
 		log.Print("failed to marshal entity", err)
-		return
+		return ""
 	}
-	if err := email.Send(string(b), *subject, entity.Options.Email); err != nil {
-		log.Print("failed to send email", err)
-	}
+	return string(b)
 }

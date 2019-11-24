@@ -13,7 +13,6 @@ import (
 
 var (
 	chromeTimeout = time.Second * 60
-	chromePath    = ""
 	chromeOpts    = []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
@@ -39,9 +38,6 @@ var (
 )
 
 func init() {
-	if v, ok := os.LookupEnv("CHROME_PATH"); ok {
-		chromePath = v
-	}
 	if v, ok := os.LookupEnv("CHROME_TIMEOUT"); ok {
 		vi, err := strconv.Atoi(v)
 		if err != nil {

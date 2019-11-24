@@ -35,12 +35,6 @@ To setup environment variables, do
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/gcp/credential.json"
-export EMAIL_USERNAME="user"
-export EMAIL_PASSWORD="password"
-export EMAIL_HOST="smtp.gmail.com"
-export EMAIL_FROM="user@gmail.com"
-export SCHEDULE_FREQ=10 # in minutes
-export CHROME_PATH="/usr/bin/chromium-browser"
 export CHROME_TIMEOUT=60 # in seconds
 ```
 
