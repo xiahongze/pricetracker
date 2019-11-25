@@ -16,9 +16,6 @@ import (
 var priceRegex, _ = regexp.Compile("\\d+\\.?\\d{0,}")
 
 func processEntity(ent *models.Entity, pushClient *pushover.Client) {
-	if ent.K == nil {
-		return
-	}
 	// save the entity before returning
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
@@ -91,6 +88,9 @@ func Refresh(pushClient *pushover.Client, fetchLimit int) {
 	log.Println("INFO: Refresh started")
 	entities := FetchData(fetchLimit)
 	for _, ent := range entities {
+		if ent.K == nil {
+			continue
+		}
 		log.Printf("INFO: processing [%s] XPATH (%s) at %s", ent.Name, ent.XPATH, ent.URL)
 		processEntity(&ent, pushClient)
 	}
