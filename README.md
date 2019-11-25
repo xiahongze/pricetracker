@@ -6,6 +6,17 @@ Welcome to Price-Tracker. Hope you could save money with this little app. This p
 
 Given an `xpath` and a link, one could extract price information from the website. Although `xpath` and the link could become invalid at anytime, we could still hope for the best and track down the trend for the price of interest.
 
+## Requirements
+
+Starting from v0.3.0, this project relies on an external API call [pushover](https://pushover.net/) which pushes notifications directly to your phones or desktops. The app is about 5USD which is worth the money in my view as you get neat messages right there on your phone. Also, you could build as many as app with their service if you like.
+
+After setting up your pushover account, you need to create an app for this application. Then, 
+you got two tokens, one for your user account and one for the app. That is it.
+
+For the each record in datastore, you could overwrite the user and the device key such that
+your messages are only delivered to specific persons or devices. By default, the app would send
+messages to all devices in your account.
+
 ## Build
 
 Dependencies:
@@ -19,12 +30,6 @@ In the project directory, run
 go build
 ```
 
-## Important fix in chromedp
-
-In `vendor/github.com/chromedp/chromedp/runner/runner.go:248`, change to `if r.cmd != nil && r.cmd.Process != nil {` as chromium did not shutdown properly and there is no harm sending signalterm anyway.
-
-Comment out `vendor/github.com/chromedp/chromedp/runner/runner.go:11`.
-
 ## Setup and Serve
 
 Once you have compiled this project, a binary executable named `pricetracker` should be sitting in your directory. There are some important environment variables that you want to setup before running it.
@@ -36,25 +41,37 @@ To setup environment variables, do
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/gcp/credential.json"
 export CHROME_TIMEOUT=60 # in seconds
+$ ./pricetracker -h
+Usage of ./pricetracker:
+  -appToken string
+        pushover app token
+  -fetchLimit int
+        fetch limit from google datastore (default 10)
+  -port string
+        server port (default "8080")
+  -schdlFreq int
+        schedule frequency in minutes (default 2)
+  -userToken string
+        pushover user token
+# appToken and userToken are required!
 ```
 
-and then simply run, `./pricetracker`. Well done! You make it.
-
-## Daemonization
-
-You can do better by making this little app run as a daemon in Linux by,
+## Put It in One Script
 
 ```bash
 #!/bin/bash
 
+export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/gcp/credential.json"
+export CHROME_TIMEOUT=60 # in seconds
+
 WDIR=/home/pi/apps/pricetracker
 
-source ${WDIR}/.env && daemon --name="pricetracker" --output=${WDIR}/log ${WDIR}/pricetracker
+${WDIR}/pricetracker \
+	-appToken APPTOKEN \
+	-userToken USERTOKEN \
+	-schdlFreq 10 \
+	-fetchLimit 10
 ```
-
-where `.env` is the environment variables (saved as a file) we set in the last step.
-
-Of course, you need `daemon` for this script to work.
 
 ## Logrotation
 
