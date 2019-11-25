@@ -1,6 +1,7 @@
 package pushover
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -18,6 +19,7 @@ type (
 	// Not all fields have been implemented
 	// Please refer to https://pushover.net/api
 	Message struct {
+		User     string
 		Msg      string
 		Device   string
 		Title    string
@@ -29,14 +31,17 @@ type (
 var msgAPI = "https://api.pushover.net/1/messages.json"
 
 // Send sends a message to the queue
-func (c *Client) Send(msg *Message) {
+func (c *Client) Send(msg *Message) error {
 	if msg.Msg == "" {
-		log.Printf("can't send an empty message")
-		return
+		return fmt.Errorf("can't send an empty message")
+	}
+	user := msg.User
+	if user == "" {
+		user = c.User
 	}
 	form := url.Values{
 		"token":   []string{c.AppToken},
-		"user":    []string{c.User},
+		"user":    []string{user},
 		"message": []string{msg.Msg},
 	}
 	if msg.Device != "" {
@@ -53,16 +58,15 @@ func (c *Client) Send(msg *Message) {
 	}
 	resp, err := http.PostForm(msgAPI, form)
 	if err != nil {
-		log.Printf("failed sending message %v", err)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			log.Printf("failed reading resp body %v", err)
-			return
+			return err
 		}
 		log.Printf("resp: %s", body)
 	}
+	return nil
 }

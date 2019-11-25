@@ -8,18 +8,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
 )
 
 var (
-	chromeTimeout = time.Second * 60
-	chromePath    = ""
+	chromeTimeout = time.Second * 10
 	chromeOpts    = []chromedp.ExecAllocatorOption{
 		chromedp.NoFirstRun,
 		chromedp.NoDefaultBrowserCheck,
 		chromedp.Headless,
 		chromedp.DisableGPU,
 		chromedp.Flag("enable-automation", false),
+		chromedp.UserAgent(`Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36`),
 		chromedp.Flag("disable-background-networking", true),
 		chromedp.Flag("disable-background-timer-throttling", true),
 		chromedp.Flag("disable-backgrounding-occluded-windows", true),
@@ -36,12 +37,26 @@ var (
 		chromedp.Flag("disable-renderer-backgrounding", true),
 		chromedp.Flag("disable-sync", true),
 	}
+	/**
+	 * Hard research to find out how to hide the automation mode
+	 * https://github.com/chromedp/chromedp/issues/396
+	 * https://intoli.com/blog/not-possible-to-block-chrome-headless/
+	 **/
+	hiddenScript = `
+	Object.defineProperty(navigator, 'webdriver', {
+		get: () => false,
+	  });`
+	hide = chromedp.ActionFunc(func(ctx context.Context) error {
+		_, err := page.AddScriptToEvaluateOnNewDocument(hiddenScript).Do(ctx)
+		if err != nil {
+			return err
+		}
+		// log.Println("identifier: ", identifier.String())
+		return nil
+	})
 )
 
 func init() {
-	if v, ok := os.LookupEnv("CHROME_PATH"); ok {
-		chromePath = v
-	}
 	if v, ok := os.LookupEnv("CHROME_TIMEOUT"); ok {
 		vi, err := strconv.Atoi(v)
 		if err != nil {
@@ -63,10 +78,15 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	defer cancel()
 
 	var res string
-	err := chromedp.Run(ctx, chromedp.Navigate(*url), chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch))
+
+	err := chromedp.Run(ctx,
+		hide,
+		chromedp.Navigate(*url),
+		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
+	)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("WARN: failed to fetch with chromedp with %v", err)
 	}
 
 	return strings.TrimSpace(res), true

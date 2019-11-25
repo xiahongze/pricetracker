@@ -4,41 +4,31 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"regexp"
 	"strconv"
 	"time"
 
-	"github.com/xiahongze/pricetracker/email"
 	"github.com/xiahongze/pricetracker/models"
+	"github.com/xiahongze/pricetracker/pushover"
 	"github.com/xiahongze/pricetracker/trackers"
 )
 
-var fetchLimit = 10
 var priceRegex, _ = regexp.Compile("\\d+\\.?\\d{0,}")
 
-func init() {
-	if v, ok := os.LookupEnv("FETCH_LIMIT"); ok {
-		tmpI, err := strconv.Atoi(v)
-		if err != nil {
-			log.Fatalln("ERROR: ", err)
-		}
-		fetchLimit = tmpI
-	}
-}
-
-func processEntity(ent *models.Entity) {
-	if ent.K == nil {
-		return
-	}
+func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	// save the entity before returning
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 		if err := ent.Save(ctx, EntityType, DsClient, true); err != nil {
-			log.Println("ERROR: failed to save entity:", err, ". Entity: ", ent)
+			log.Printf("ERROR: failed to save entity [%s] with %v", ent.Name, err)
 		}
 		cancel()
 	}()
+
+	msg := pushover.Message{
+		Msg:  ent.String(),
+		User: ent.Options.User,
+	}
 
 	var tracker trackers.Tracker = trackers.SimpleTracker
 	if ent.Options.UseChrome != nil && *ent.Options.UseChrome {
@@ -50,8 +40,8 @@ func processEntity(ent *models.Entity) {
 		log.Println("ERROR: failed to fetch price.", content)
 		key, _ := ent.K.MarshalJSON()
 		log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
-		subject := fmt.Sprintf("[%s] <%s> Alert: failed to fetch price for reason `%s`!", email.Identity, ent.Name, content)
-		ent.SendEmail(&subject)
+		msg.Title = fmt.Sprintf("[%s] Alert: failed to fetch price because`%s`!", ent.Name, content)
+		pushClient.Send(&msg)
 		// do not check again after 30 minutes
 		ent.NextCheck.Add(time.Minute * 30)
 		return
@@ -66,32 +56,41 @@ func processEntity(ent *models.Entity) {
 	thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)
 	if err != nil {
 		log.Println("ERROR: failed to convert price", err, "this price:", content)
+		msg.Title = fmt.Sprintf("[%s] Alert: failed to convert price `%s`!", ent.Name, content)
+		pushClient.Send(&msg)
+		// do not check again after 30 minutes
+		ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 
 	// update history & save entity
 	ent.History = append(ent.History, models.DataPoint{Price: content, Timestamp: time.Now()})
 	ent.NextCheck = time.Now().Add(time.Minute * time.Duration(ent.Options.CheckFreq))
-	if len(ent.History) > int(ent.Options.MaxRecords) {
-		ent.History = ent.History[:ent.Options.MaxRecords]
+	deltaRecordCnt := len(ent.History) - int(ent.Options.MaxRecords)
+	if deltaRecordCnt > 0 {
+		ent.History = ent.History[deltaRecordCnt:]
 	}
 	// send alert
 	if ent.Options.AlertType == "onChange" && content != last.Price {
-		subject := fmt.Sprintf("[%s] <%s> Alert: price changes to %s!", email.Identity, ent.Name, content)
-		ent.SendEmail(&subject)
+		msg.Title = fmt.Sprintf("[%s] Alert: price changes to %s!", ent.Name, content)
+		pushClient.Send(&msg)
 	}
 	if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
-		subject := fmt.Sprintf("[%s] <%s> Alert: price drops to %s!", email.Identity, ent.Name, content)
-		ent.SendEmail(&subject)
+		msg.Title = fmt.Sprintf("[%s] Alert: price drops to %s!", ent.Name, content)
+		pushClient.Send(&msg)
 	}
 }
 
 // Refresh refreshes prices from datastore
-func Refresh() {
+func Refresh(pushClient *pushover.Client, fetchLimit int) {
 	log.Println("INFO: Refresh started")
 	entities := FetchData(fetchLimit)
 	for _, ent := range entities {
-		processEntity(&ent)
+		if ent.K == nil {
+			continue
+		}
+		log.Printf("INFO: processing [%s] XPATH (%s) at %s", ent.Name, ent.XPATH, ent.URL)
+		processEntity(&ent, pushClient)
 	}
 	log.Println("INFO: Refresh ended")
 }

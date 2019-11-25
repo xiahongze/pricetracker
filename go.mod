@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	cloud.google.com/go v0.30.0
-	github.com/chromedp/cdproto v0.0.0-20191114225735-6626966fbae4 // indirect
+	github.com/chromedp/cdproto v0.0.0-20191114225735-6626966fbae4
 	github.com/chromedp/chromedp v0.5.1
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/googleapis/gax-go v2.0.0+incompatible // indirect
