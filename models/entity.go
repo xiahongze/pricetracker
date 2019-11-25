@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"cloud.google.com/go/datastore"
@@ -63,13 +65,21 @@ func (entity *Entity) Save(ctx context.Context, entTypName string, dsClient *dat
 	return
 }
 
-// String returns the JSON String representation
+// String returns a String representation
+// History has been skipped to save text space but the last one will be there
 func (entity *Entity) String() string {
-	// marshal the entity as the message
-	b, err := json.MarshalIndent(entity, "", "    ")
-	if err != nil {
-		log.Print("failed to marshal entity", err)
-		return ""
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("Product [%s] - K=%s\nURL: %s\nXPATH: %s\nHistory:\n",
+		entity.Name, entity.K.Encode(), entity.URL, entity.XPATH))
+	lastPrice := ""
+	for i, data := range entity.History {
+		if lastPrice != data.Price || i == len(entity.History)-1 {
+			sb.WriteString(data.Timestamp.Format(time.RFC822))
+			sb.WriteString("\t")
+			sb.WriteString(data.Price)
+			sb.WriteString("\n")
+			lastPrice = data.Price
+		}
 	}
-	return string(b)
+	return sb.String()
 }
