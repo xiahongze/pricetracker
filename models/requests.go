@@ -5,7 +5,7 @@ import "cloud.google.com/go/datastore"
 type (
 	// Options is the options for an entry
 	Options struct {
-		Email      string  `json:"email"`
+		User       string  `json:"user"`
 		CheckFreq  int16   `json:"checkFreq"` // in minutes
 		AlertType  string  `json:"alertType"`
 		Threshold  float32 `json:"threshold"`

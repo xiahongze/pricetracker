@@ -19,6 +19,7 @@ type (
 	// Not all fields have been implemented
 	// Please refer to https://pushover.net/api
 	Message struct {
+		User     string
 		Msg      string
 		Device   string
 		Title    string
@@ -34,9 +35,13 @@ func (c *Client) Send(msg *Message) error {
 	if msg.Msg == "" {
 		return fmt.Errorf("can't send an empty message")
 	}
+	user := msg.User
+	if user == "" {
+		user = c.User
+	}
 	form := url.Values{
 		"token":   []string{c.AppToken},
-		"user":    []string{c.User},
+		"user":    []string{user},
 		"message": []string{msg.Msg},
 	}
 	if msg.Device != "" {

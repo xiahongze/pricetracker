@@ -25,7 +25,10 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		cancel()
 	}()
 
-	msgBody := ent.String()
+	msg := pushover.Message{
+		Msg:  ent.String(),
+		User: ent.Options.User,
+	}
 
 	var tracker trackers.Tracker = trackers.SimpleTracker
 	if ent.Options.UseChrome != nil && *ent.Options.UseChrome {
@@ -37,10 +40,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		log.Println("ERROR: failed to fetch price.", content)
 		key, _ := ent.K.MarshalJSON()
 		log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
-		msg := pushover.Message{
-			Title: fmt.Sprintf("[%s] Alert: failed to fetch price because`%s`!", ent.Name, content),
-			Msg:   msgBody,
-		}
+		msg.Title = fmt.Sprintf("[%s] Alert: failed to fetch price because`%s`!", ent.Name, content)
 		pushClient.Send(&msg)
 		// do not check again after 30 minutes
 		ent.NextCheck.Add(time.Minute * 30)
@@ -56,6 +56,10 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)
 	if err != nil {
 		log.Println("ERROR: failed to convert price", err, "this price:", content)
+		msg.Title = fmt.Sprintf("[%s] Alert: failed to convert price `%s`!", ent.Name, content)
+		pushClient.Send(&msg)
+		// do not check again after 30 minutes
+		ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 
@@ -68,17 +72,11 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	}
 	// send alert
 	if ent.Options.AlertType == "onChange" && content != last.Price {
-		msg := pushover.Message{
-			Title: fmt.Sprintf("[%s] Alert: price changes to %s!", ent.Name, content),
-			Msg:   msgBody,
-		}
+		msg.Title = fmt.Sprintf("[%s] Alert: price changes to %s!", ent.Name, content)
 		pushClient.Send(&msg)
 	}
 	if ent.Options.AlertType == "threshold" && ent.Options.Threshold >= float32(thisP) {
-		msg := pushover.Message{
-			Title: fmt.Sprintf("[%s] Alert: price drops to %s!", ent.Name, content),
-			Msg:   msgBody,
-		}
+		msg.Title = fmt.Sprintf("[%s] Alert: price drops to %s!", ent.Name, content)
 		pushClient.Send(&msg)
 	}
 }
