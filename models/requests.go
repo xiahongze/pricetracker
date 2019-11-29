@@ -15,11 +15,11 @@ type (
 
 	// CreateRequest defines the contract to add an entry
 	CreateRequest struct {
-		URL           string   `json:"url"`
-		XPATH         string   `json:"xpath"`
-		Name          string   `json:"name"`
-		ExpectedPrice string   `json:"expectedPrice"`
-		Options       *Options `json:"options"`
+		URL           string  `json:"url"`
+		XPATH         string  `json:"xpath"`
+		Name          string  `json:"name"`
+		ExpectedPrice string  `json:"expectedPrice"`
+		Options       Options `json:"options,omitempty"`
 	}
 
 	// UpdateRequest defines the contract to update an entry
@@ -28,7 +28,7 @@ type (
 		XPATH   string         `json:"xpath"`
 		Name    string         `json:"name"`
 		Key     *datastore.Key `json:"key"`
-		Options *Options       `json:"options"`
+		Options *Options       `json:"options,omitempty"`
 	}
 
 	// ReadOrDelRequest defines the contract to read/delete an entry
