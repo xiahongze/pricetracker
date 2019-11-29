@@ -13,6 +13,7 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 	defer func() {
 		if !ok {
 			log.Println(content)
+			return
 		}
 		log.Printf("INFO: Found innerText=%s", content)
 	}()
@@ -22,11 +23,13 @@ func SimpleTracker(url, xpath *string) (content string, ok bool) {
 	if err != nil {
 		ok = false
 		content = fmt.Sprintf("WARN: failed to load html with error %v", err)
+		return
 	}
 	elem := htmlquery.FindOne(doc, *xpath)
 	if elem == nil {
 		ok = false
 		content = fmt.Sprintf("WARN: failed to find element with `%s`", *xpath)
+		return
 	}
 	ok = true
 	content = htmlquery.InnerText(elem)
