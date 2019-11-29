@@ -77,6 +77,7 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	ctx, cancel = chromedp.NewContext(ctx)
 	defer cancel()
 
+	log.Printf("INFO: loading %s", *url)
 	var res string
 
 	err := chromedp.Run(ctx,
