@@ -1,4 +1,5 @@
 # Price-Tracker
+[![Build Status](https://travis-ci.org/xiahongze/pricetracker.svg?branch=master)](https://travis-ci.org/xiahongze/pricetracker)
 
 ## Introduction
 
