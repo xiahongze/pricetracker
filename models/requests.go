@@ -73,20 +73,20 @@ func (o *Options) setDefault() {
 }
 
 // Validate validates
-func (r *ReadOrDelRequest) Validate() (string, bool) {
+func (r *ReadOrDelRequest) Validate() error {
 	if r.Key == nil {
-		return "key is not given", false
+		return fmt.Errorf("key is not given")
 	}
-	return "", true
+	return nil
 }
 
 // Validate validates
-func (r *UpdateRequest) Validate() (string, bool) {
+func (r *UpdateRequest) Validate() error {
 	if r.Key == nil {
-		return "key is not given", false
+		return fmt.Errorf("key is not given")
 	}
 	if r.Options == nil {
-		return "options is not given", false
+		return fmt.Errorf("options is not given")
 	}
-	return "", true
+	return nil
 }
