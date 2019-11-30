@@ -15,14 +15,21 @@ import (
 
 var priceRegex, _ = regexp.Compile("\\d+\\.?\\d{0,}")
 
-func processEntity(ent *models.Entity, pushClient *pushover.Client) {
+func processEntity(ent *models.Entity, pushClient *pushover.Client) (err error) {
 	// save the entity before returning
 	defer func() {
+		if err != nil {
+			log.Printf("ERROR: %v", err)
+			key, _ := ent.K.MarshalJSON()
+			log.Printf("INFO: URL: %s\tXPATH: %s\tKey: %s", ent.URL, ent.XPATH, key)
+			// do not check again after 30 minutes
+			ent.NextCheck = ent.NextCheck.Add(time.Minute * 30)
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
+		defer cancel()
 		if err := ent.Save(ctx, EntityType, DsClient, true); err != nil {
 			log.Printf("ERROR: failed to save entity [%s] with %v", ent.Name, err)
 		}
-		cancel()
 	}()
 
 	msg := pushover.Message{
@@ -35,19 +42,14 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		tracker = trackers.ChromeTracker
 	}
 
-	content, ok := tracker(&ent.URL, &ent.XPATH)
-	if !ok {
-		log.Println("ERROR: failed to fetch price.", content)
-		key, _ := ent.K.MarshalJSON()
-		log.Printf("URL: %s\nXPATH: %s\nKey: %s", ent.URL, ent.XPATH, key)
-		msg.Title = fmt.Sprintf("[%s] Alert: failed to fetch price because`%s`!", ent.Name, content)
+	content, err := tracker(&ent.URL, &ent.XPATH)
+	if err != nil {
+		msg.Title = fmt.Sprintf("[%s] Alert: failed to fetch price `%v`!", ent.Name, err)
 		pushClient.Send(&msg)
-		// do not check again after 30 minutes
-		ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 	if ent.History == nil {
-		log.Println("WARN: zero price history.", ent)
+		log.Println("WARN: zero price history")
 		ent.History = []models.DataPoint{{Price: content, Timestamp: time.Now()}}
 		return
 	}
@@ -55,11 +57,8 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	last := ent.History[len(ent.History)-1]
 	thisP, err := strconv.ParseFloat(priceRegex.FindString(content), 32)
 	if err != nil {
-		log.Println("ERROR: failed to convert price", err, "this price:", content)
 		msg.Title = fmt.Sprintf("[%s] Alert: failed to convert price `%s`!", ent.Name, content)
 		pushClient.Send(&msg)
-		// do not check again after 30 minutes
-		ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 
@@ -79,6 +78,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		msg.Title = fmt.Sprintf("[%s] Alert: price drops to %s!", ent.Name, content)
 		pushClient.Send(&msg)
 	}
+	return
 }
 
 // Refresh refreshes prices from datastore

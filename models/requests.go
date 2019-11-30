@@ -2,6 +2,8 @@ package models
 
 import "cloud.google.com/go/datastore"
 
+import "fmt"
+
 type (
 	// Options is the options for an entry
 	Options struct {
@@ -38,21 +40,21 @@ type (
 )
 
 // Validate validates
-func (r *CreateRequest) Validate() (string, bool) {
+func (r *CreateRequest) Validate() error {
 	if r.URL == "" {
-		return "url is not set", false
+		return fmt.Errorf("url is not set")
 	}
 	if r.XPATH == "" {
-		return "xpath is not set", false
+		return fmt.Errorf("xpath is not set")
 	}
 	if r.Name == "" {
-		return "name is not set", false
+		return fmt.Errorf("name is not set")
 	}
 	if r.ExpectedPrice == "" {
-		return "expectedPrice is not set", false
+		return fmt.Errorf("ExpectedPrice is not set")
 	}
 	r.Options.setDefault()
-	return "", true
+	return nil
 }
 
 func (o *Options) setDefault() {
@@ -71,20 +73,20 @@ func (o *Options) setDefault() {
 }
 
 // Validate validates
-func (r *ReadOrDelRequest) Validate() (string, bool) {
+func (r *ReadOrDelRequest) Validate() error {
 	if r.Key == nil {
-		return "key is not given", false
+		return fmt.Errorf("key is not given")
 	}
-	return "", true
+	return nil
 }
 
 // Validate validates
-func (r *UpdateRequest) Validate() (string, bool) {
+func (r *UpdateRequest) Validate() error {
 	if r.Key == nil {
-		return "key is not given", false
+		return fmt.Errorf("key is not given")
 	}
 	if r.Options == nil {
-		return "options is not given", false
+		return fmt.Errorf("options is not given")
 	}
-	return "", true
+	return nil
 }
