@@ -19,10 +19,10 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 	// save the entity before returning
 	defer func() {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
+		defer cancel()
 		if err := ent.Save(ctx, EntityType, DsClient, true); err != nil {
 			log.Printf("ERROR: failed to save entity [%s] with %v", ent.Name, err)
 		}
-		cancel()
 	}()
 
 	msg := pushover.Message{
@@ -43,7 +43,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		msg.Title = fmt.Sprintf("[%s] Alert: failed to fetch price because`%s`!", ent.Name, content)
 		pushClient.Send(&msg)
 		// do not check again after 30 minutes
-		ent.NextCheck.Add(time.Minute * 30)
+		ent.NextCheck = ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 	if ent.History == nil {
@@ -59,7 +59,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) {
 		msg.Title = fmt.Sprintf("[%s] Alert: failed to convert price `%s`!", ent.Name, content)
 		pushClient.Send(&msg)
 		// do not check again after 30 minutes
-		ent.NextCheck.Add(time.Minute * 30)
+		ent.NextCheck = ent.NextCheck.Add(time.Minute * 30)
 		return
 	}
 
