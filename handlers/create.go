@@ -16,31 +16,31 @@ import (
 // MakeCreate creates create handler request
 func MakeCreate(client *pushover.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		req := &models.CreateRequest{}
-		if err := c.Bind(req); err != nil {
-			return c.String(http.StatusBadRequest, err.Error())
-		}
-
-		if msg, ok := req.Validate(); !ok {
-			return c.String(http.StatusBadRequest, msg)
-		}
-
 		var (
 			content   string
-			ok        bool
+			err       error
 			useChrome = true
 		)
 
-		if req.Options.UseChrome == nil || !*req.Options.UseChrome {
-			content, ok = trackers.SimpleTracker(&req.URL, &req.XPATH)
+		req := &models.CreateRequest{}
+		if err = c.Bind(req); err != nil {
+			return c.String(http.StatusBadRequest, err.Error())
 		}
-		if !ok {
+
+		if err = req.Validate(); err != nil {
+			return c.String(http.StatusBadRequest, err.Error())
+		}
+
+		if req.Options.UseChrome == nil || !*req.Options.UseChrome {
+			content, err = trackers.SimpleTracker(&req.URL, &req.XPATH)
+		}
+		if err != nil {
 			req.Options.UseChrome = &useChrome
 			log.Println("INFO: Resorting to Chrome")
 		}
 		if req.Options.UseChrome != nil && *req.Options.UseChrome {
-			if content, ok = trackers.ChromeTracker(&req.URL, &req.XPATH); !ok {
-				return c.String(http.StatusBadRequest, content)
+			if content, err = trackers.ChromeTracker(&req.URL, &req.XPATH); err != nil {
+				return c.String(http.StatusBadRequest, err.Error())
 			}
 		}
 

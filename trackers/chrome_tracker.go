@@ -68,8 +68,8 @@ func init() {
 }
 
 // ChromeTracker uses headless chrome to fetch content from given url and xpath
-// and returns content/error message, ok
-func ChromeTracker(url, xpath *string) (string, bool) {
+// and returns content, error
+func ChromeTracker(url, xpath *string) (res string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), chromeTimeout)
 	defer cancel()
 	ctx, cancel = chromedp.NewExecAllocator(ctx, chromeOpts...)
@@ -78,17 +78,13 @@ func ChromeTracker(url, xpath *string) (string, bool) {
 	defer cancel()
 
 	log.Printf("INFO: loading %s", *url)
-	var res string
 
-	err := chromedp.Run(ctx,
+	err = chromedp.Run(ctx,
 		hide,
 		chromedp.Navigate(*url),
 		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
 	)
+	res = strings.TrimSpace(res)
 
-	if err != nil {
-		log.Printf("WARN: failed to fetch with chromedp with %v", err)
-	}
-
-	return strings.TrimSpace(res), true
+	return
 }
