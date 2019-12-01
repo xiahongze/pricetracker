@@ -12,7 +12,7 @@ type (
 		AlertType  string  `json:"alertType"`
 		Threshold  float32 `json:"threshold"`
 		MaxRecords int16   `json:"maxRecords"`
-		UseChrome  *bool   `json:"useChrome"`
+		UseChrome  bool    `json:"useChrome"`
 	}
 
 	// CreateRequest defines the contract to add an entry
@@ -26,11 +26,12 @@ type (
 
 	// UpdateRequest defines the contract to update an entry
 	UpdateRequest struct {
-		URL     string         `json:"url"`
-		XPATH   string         `json:"xpath"`
-		Name    string         `json:"name"`
-		Key     *datastore.Key `json:"key"`
-		Options *Options       `json:"options,omitempty"`
+		URL       string         `json:"url"`
+		XPATH     string         `json:"xpath"`
+		Name      string         `json:"name"`
+		Key       *datastore.Key `json:"key"`
+		UseChrome *bool          `json:useChrome`
+		Options   *Options       `json:"options,omitempty"`
 	}
 
 	// ReadOrDelRequest defines the contract to read/delete an entry

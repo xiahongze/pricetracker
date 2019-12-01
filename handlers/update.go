@@ -39,8 +39,8 @@ func MakeUpdate(client *pushover.Client) echo.HandlerFunc {
 		if req.Options.Threshold != 0 {
 			entity.Options.Threshold = req.Options.Threshold
 		}
-		if req.Options.UseChrome != nil {
-			entity.Options.UseChrome = req.Options.UseChrome
+		if req.UseChrome != nil {
+			entity.Options.UseChrome = *req.UseChrome
 		}
 
 		if req.Name != "" {

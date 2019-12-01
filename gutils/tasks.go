@@ -38,7 +38,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) (err error) 
 	}
 
 	var tracker trackers.Tracker = trackers.SimpleTracker
-	if ent.Options.UseChrome != nil && *ent.Options.UseChrome {
+	if ent.Options.UseChrome {
 		tracker = trackers.ChromeTracker
 	}
 
