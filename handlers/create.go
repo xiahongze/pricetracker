@@ -17,9 +17,8 @@ import (
 func MakeCreate(client *pushover.Client) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		var (
-			content   string
-			err       error
-			useChrome = true
+			content string
+			err     error
 		)
 
 		req := &models.CreateRequest{}
@@ -31,14 +30,12 @@ func MakeCreate(client *pushover.Client) echo.HandlerFunc {
 			return c.String(http.StatusBadRequest, err.Error())
 		}
 
-		if req.Options.UseChrome == nil || !*req.Options.UseChrome {
+		if !req.Options.UseChrome {
 			content, err = trackers.SimpleTracker(&req.URL, &req.XPATH)
 		}
 		if err != nil {
-			req.Options.UseChrome = &useChrome
+			req.Options.UseChrome = true
 			log.Println("INFO: Resorting to Chrome")
-		}
-		if req.Options.UseChrome != nil && *req.Options.UseChrome {
 			if content, err = trackers.ChromeTracker(&req.URL, &req.XPATH); err != nil {
 				return c.String(http.StatusBadRequest, err.Error())
 			}
