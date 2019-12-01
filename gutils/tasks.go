@@ -38,7 +38,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) (err error) 
 	}
 
 	var tracker trackers.Tracker = trackers.SimpleTracker
-	if ent.Options.UseChrome != nil && *ent.Options.UseChrome {
+	if ent.Options.UseChrome {
 		tracker = trackers.ChromeTracker
 	}
 
@@ -69,6 +69,7 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) (err error) 
 	if deltaRecordCnt > 0 {
 		ent.History = ent.History[deltaRecordCnt:]
 	}
+	msg.Msg = ent.String() // update message
 	// send alert
 	if ent.Options.AlertType == "onChange" && content != last.Price {
 		msg.Title = fmt.Sprintf("[%s] Alert: price changes to %s!", ent.Name, content)
