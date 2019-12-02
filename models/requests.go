@@ -30,7 +30,7 @@ type (
 		XPATH     string         `json:"xpath"`
 		Name      string         `json:"name"`
 		Key       *datastore.Key `json:"key"`
-		UseChrome *bool          `json:useChrome`
+		UseChrome *bool          `json:"useChrome,omitempty"`
 		Options   *Options       `json:"options,omitempty"`
 	}
 
