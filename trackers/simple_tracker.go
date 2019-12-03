@@ -3,6 +3,7 @@ package trackers
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/antchfx/htmlquery"
 )
@@ -27,6 +28,8 @@ func SimpleTracker(url, xpath *string) (content string, err error) {
 		return
 	}
 	content = htmlquery.InnerText(elem)
+	content = strings.TrimSpace(content)
+	content = strings.Replace(content, "\n", " ", -1)
 
 	return
 }
