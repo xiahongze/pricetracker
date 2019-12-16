@@ -33,7 +33,7 @@ func MakeCreate(client *pushover.Client) echo.HandlerFunc {
 		if !req.Options.UseChrome {
 			content, err = trackers.SimpleTracker(&req.URL, &req.XPATH)
 		}
-		if err != nil {
+		if err != nil || req.Options.UseChrome {
 			req.Options.UseChrome = true
 			log.Println("INFO: Resorting to Chrome")
 			if content, err = trackers.ChromeTracker(&req.URL, &req.XPATH); err != nil {
