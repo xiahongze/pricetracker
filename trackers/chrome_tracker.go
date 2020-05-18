@@ -85,6 +85,7 @@ func ChromeTracker(url, xpath *string) (res string, err error) {
 		chromedp.Text(*xpath, &res, chromedp.NodeVisible, chromedp.BySearch),
 	)
 	res = strings.TrimSpace(res)
+	res = strings.ReplaceAll(res, " ", "")
 	res = strings.Replace(res, "\n", " ", -1)
 
 	return

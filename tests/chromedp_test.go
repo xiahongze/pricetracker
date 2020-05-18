@@ -8,8 +8,9 @@ import (
 )
 
 func TestColes(t *testing.T) {
-	url := "https://shop.coles.com.au/a/a-nsw-metro-westmead/product/goldn-canola-canola-oil"
-	xpath := `//span/strong[@class="product-price"]`
+	url := "https://shop.coles.com.au/a/national/product/goldn-canola-canola-oil"
+	// url := "https://shop.coles.com.au/a/national/product/grinders-organic-coffee-beans"
+	xpath := `//span/strong[@class="product-price"] | //*[@id="main-content-inside"]/div[2]/div/header/div[3]/div/span[1]`
 	price, err := trackers.ChromeTracker(&url, &xpath)
 	if err != nil {
 		t.Errorf("can't fetch price from %s with %s error: %v", url, xpath, err)
