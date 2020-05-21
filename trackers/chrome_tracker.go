@@ -36,6 +36,7 @@ var (
 		chromedp.Flag("disable-prompt-on-repost", true),
 		chromedp.Flag("disable-renderer-backgrounding", true),
 		chromedp.Flag("disable-sync", true),
+		chromedp.Flag("ignore-certificate-errors", true),
 	}
 	/**
 	 * Hard research to find out how to hide the automation mode
