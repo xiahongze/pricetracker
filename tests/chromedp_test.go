@@ -8,8 +8,9 @@ import (
 )
 
 func TestColes(t *testing.T) {
-	url := "https://shop.coles.com.au/a/national/product/goldn-canola-canola-oil"
+	// url := "https://shop.coles.com.au/a/national/product/goldn-canola-canola-oil"
 	// url := "https://shop.coles.com.au/a/national/product/grinders-organic-coffee-beans"
+	url := "https://shop.coles.com.au/a/national/product/lavazza-ground-coffee-torino-qualita-oro-4965938p"
 	xpath := `//span/strong[@class="product-price"] | //*[@id="main-content-inside"]/div[2]/div/header/div[3]/div/span[1]`
 	price, err := trackers.ChromeTracker(&url, &xpath)
 	if err != nil {
