@@ -22,8 +22,11 @@ func processEntity(ent *models.Entity, pushClient *pushover.Client) (err error) 
 			log.Printf("ERROR: %v", err)
 			key, _ := ent.K.MarshalJSON()
 			log.Printf("INFO: URL: %s\tXPATH: %s\tKey: %s", ent.URL, ent.XPATH, key)
-			// do not check again after 30 minutes
-			ent.NextCheck = ent.NextCheck.Add(time.Minute * 30)
+			// do not check again after 30 minutes times #retries
+			ent.Retries++
+			ent.NextCheck = ent.NextCheck.Add(time.Minute * time.Duration(30*ent.Retries))
+		} else {
+			ent.Retries = 0
 		}
 		ctx, cancel := context.WithTimeout(context.Background(), time.Duration(CancelWaitTime))
 		defer cancel()

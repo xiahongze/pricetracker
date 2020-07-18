@@ -28,6 +28,7 @@ type (
 		Name      string         `json:",omitempty"`
 		NextCheck time.Time      `json:",omitempty"`
 		History   []DataPoint    `json:",omitempty" datastore:",noindex"`
+		Retries   int64          `json:",omitempty" datastore:",noindex"`
 	}
 )
 
